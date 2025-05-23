@@ -1,9 +1,9 @@
 {
-  "name": "fullstackproject",
+  "name": "utsavaura",
   "version": "1.0.0",
-  "description": "",
+  "description": "Its a final full stack project",
   "license": "MIT",
-  "author": "",
+  "author": "Suvadeep Das <suvadeepdas15@gmail.com>",
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
