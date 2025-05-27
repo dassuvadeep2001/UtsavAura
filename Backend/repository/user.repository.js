@@ -36,6 +36,12 @@ class UserRepository {
     async validatePassword(plainPassword, hashedPassword) {
         return await new userModel().validatePassword(plainPassword, hashedPassword);
     }
+    async deleteByEmail(email) {
+  return await userModel.findOneAndDelete({ email });
+}
+    async deleteById(id) {
+    return await userModel.findByIdAndDelete(id);
+  }
 }
 
 module.exports = new UserRepository();
