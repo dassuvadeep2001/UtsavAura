@@ -1,8 +1,48 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 const Mailer = require("../helper/mailer");
 const userRepo = require("../repository/user.repository");
-const { userValidator, updateUserValidator, resetPasswordValidator } = require("../validators/user.validator");
+const {
+  userValidator,
+  updateUserValidator,
+  resetPasswordValidator,
+} = require("../validators/user.validator");
+
+
+const crypto = require("crypto");
+//encrypt and decrypt functions
+const ENCRYPTION_KEY =
+  process.env.CRYPTO_SECRET || "12345678901234567890123456789012"; // 32 chars for AES-256
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+  let iv = crypto.randomBytes(IV_LENGTH);
+  let cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+function decrypt(text) {
+  let textParts = text.split(":");
+  let iv = Buffer.from(textParts.shift(), "hex");
+  let encryptedText = Buffer.from(textParts.join(":"), "hex");
+  let decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
+//
 class UserController {
   async register(req, res) {
     try {
@@ -31,7 +71,16 @@ class UserController {
       let hashedPassword = await userRepo.hashPassword(password);
       let otp = Math.floor(100000 + Math.random() * 900000);
 
-      let user = await userRepo.createUser({name, email, phone, address, profileImage, password: hashedPassword, otp});
+      let user = await userRepo.createUser({
+        name,
+        email,
+        phone,
+        address,
+        profileImage,
+        password: hashedPassword,
+        otp,
+        otpCreatedAt: new Date(),
+      });
 
       if (user) {
         const mailer = new Mailer(
@@ -51,8 +100,8 @@ class UserController {
         <p>This OTP is valid for a limited time. Please do not share it with anyone.</p>
         <br/>
         <p>Best regards,<br/>The UtsavAura Team</p>
-      </div>`
-};
+      </div>`,
+        };
         mailer.sendMail(mailObj);
       }
 
@@ -74,9 +123,11 @@ class UserController {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        return res
-          .status(400)
-          .json({ status: 400, message: "Email and password are required", data: {} });
+        return res.status(400).json({
+          status: 400,
+          message: "Email and password are required",
+          data: {},
+        });
       }
 
       let user = await userRepo.findByEmail(email);
@@ -85,7 +136,7 @@ class UserController {
         if (user[0].otp) {
           return res.json({
             status: 400,
-            message: "User not verified. Please verify via OTP.",
+            message: "User not verified. Please verify via OTP within 3 days.",
             data: {},
           });
         }
@@ -105,13 +156,15 @@ class UserController {
         let token = jwt.sign({ id: user[0]._id }, process.env.JWT_SECRET, {
           expiresIn: "1d",
         });
+        let encryptedToken = encrypt(token);
+
         let userData = await userRepo.getPublicProfileById(user[0]._id);
 
         return res.json({
           status: 200,
-          message: "Login successful",
+          message: "Login successfull",
           data: userData,
-          token,
+          token: encryptedToken, // Send encrypted token
         });
       } else {
         return res.json({
@@ -130,17 +183,56 @@ class UserController {
   async verifyEmail(req, res) {
     try {
       const { email, otp } = req.body;
-        if (!email || !otp) {
+      if (!email || !otp) {
+        return res.json({
+          status: 400,
+          message: "Email and OTP are required",
+          data: {},
+        });
+      }
+
+      const userArr = await userRepo.findByEmail(email);
+      if (userArr.length === 0) {
+        return res.json({
+          status: 400,
+          message: "Invalid OTP or user not found",
+          data: {},
+        });
+      }
+
+      const user = userArr[0];
+
+      // Check if OTP expired (3 days)
+      if (user.otp && user.otpCreatedAt) {
+        const otpCreatedAt = new Date(user.otpCreatedAt);
+        const now = new Date();
+        const diffMs = now - otpCreatedAt;
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        if (diffDays > 3) {
+          // Delete profile image if exists
+          if (user.profileImage) {
+            const imagePath = path.join(
+              process.cwd(),
+              "uploads",
+              user.profileImage
+            );
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+            }
+          }
+          // Delete user if OTP expired
+          await userRepo.deleteByEmail(email);
           return res.json({
             status: 400,
-            message: "Email and OTP are required",
+            message:
+              "OTP expired. Your registration has been removed. Please register again.",
             data: {},
-        })
-    }
-      const user = await userRepo.findByEmail(email);
+          });
+        }
+      }
 
-      if (user.length > 0 && user[0].otp == otp) {
-        await userRepo.updateByEmail(email, { otp: null });
+      if (user.otp == otp) {
+        await userRepo.updateByEmail(email, { otp: null, otpCreatedAt: null });
         return res.json({
           status: 200,
           message: "Email verified successfully",
@@ -200,7 +292,7 @@ class UserController {
         <p style="color: #4A90E2; word-break: break-all;">${resetLink}</p>
         <br/>
         <p>Best regards,<br/>The UtsavAura Team</p>
-      </div>`
+      </div>`,
       };
 
       mailer.sendMail(mailObj);
@@ -218,18 +310,18 @@ class UserController {
 
   async resetPassword(req, res) {
     try {
-        const { error, value } = resetPasswordValidator.validate(req.body, {
-            abortEarly: false,
+      const { error, value } = resetPasswordValidator.validate(req.body, {
+        abortEarly: false,
+      });
+      if (error) {
+        return res.json({
+          status: 400,
+          message: error.details.map((detail) => detail.message),
+          data: {},
         });
-        if (error) {
-            return res.json({
-                status: 400,
-                message: error.details.map((detail) => detail.message),
-                data: {},
-            });
-        }
+      }
       const { password, confirmPassword } = value;
-      if ( password !== confirmPassword) {
+      if (password !== confirmPassword) {
         return res.json({
           status: 400,
           message: "Password and confirm password does not match",
@@ -289,12 +381,50 @@ class UserController {
       }
       const { name, email, phone, address, profileImage } = value;
 
-      const updatedData = await userRepo.updateById(user._id, {name, email, phone, address, profileImage,});
+      const updatedData = await userRepo.updateById(user._id, {
+        name,
+        email,
+        phone,
+        address,
+        profileImage,
+      });
 
       return res.json({
         status: 200,
         message: "Profile updated successfully",
         data: updatedData,
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ status: 500, message: error.message, data: {} });
+    }
+  }
+
+  async deleteProfile(req, res) {
+    try {
+      const user = req.user;
+
+      // Fetch user data to get the profile image filename
+      const userData = await userRepo.findById(user._id);
+      if (userData && userData.profileImage) {
+        // Use process.cwd() to get the project root directory
+        const imagePath = path.join(
+          process.cwd(),
+          "uploads",
+          userData.profileImage
+        );
+        // Delete the image file if it exists
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      }
+
+      await userRepo.deleteById(user._id);
+      return res.json({
+        status: 200,
+        message: "Profile deleted successfully",
+        data: {},
       });
     } catch (error) {
       return res
