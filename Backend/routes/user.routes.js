@@ -2,7 +2,7 @@ const router= require('express').Router();
 const authController = require('../controllers/user.controller');
 const auth= require('../middleware/auth')()
 const multer = require("../helper/fileUpload");
-const fileUpload = new multer({ folderName: "uploads", supportedFiles: ["image/png", "image/jpg", "image/jpeg"], maxSize: 10 * 1024 * 1024 });
+const fileUpload = new multer({ folderName: "uploads", supportedFiles: ["image/png", "image/jpg", "image/jpeg", "image/avif"], maxSize: 10 * 1024 * 1024 });
 
 router.post('/register', fileUpload.upload().single('profileImage'), authController.register);
 router.post('/login', authController.login);

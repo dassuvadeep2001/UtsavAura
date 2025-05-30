@@ -9,7 +9,7 @@ const crypto = require("crypto");
 // --- Encryption/Decryption Helpers ---
 const ENCRYPTION_KEY =
   process.env.CRYPTO_SECRET || "12345678901234567890123456789012"; // 32 chars
-const IV_LENGTH = 16;
+// const IV_LENGTH = 16;
 function decrypt(text) {
   let textParts = text.split(":");
   let iv = Buffer.from(textParts.shift(), "hex");
@@ -95,6 +95,25 @@ module.exports = () => {
           return res.send({
             status: 401,
             message: "This route is only for admin",
+          });
+        }
+        req.user = user;
+        return next();
+      })(req, res, next);
+    },
+    //for admin
+    eventManagerAuthenticate: (req, res, next) => {
+      passport.authenticate("jwt", { session: false }, (err, user) => {
+        if (err) {
+          return res.send({
+            status: 500,
+            message: "please provide a valid token",
+          });
+        }
+        if (!user || user.role !== "eventManager") {
+          return res.send({
+            status: 401,
+            message: "This route is only for event manager",
           });
         }
         req.user = user;

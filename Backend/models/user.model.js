@@ -3,12 +3,12 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     name: { type: String },
-    email: { type: String, unique: true },
+    email: { type: String },
     phone: { type: String },
     address: { type: String },
     profileImage: { type: String },
     password: { type: String },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin', 'eventManager'], default: 'user' },
     otp: { type: String },
     otpCreatedAt: { type: Date }, 
     isDeleted: { type: Boolean, default: false },

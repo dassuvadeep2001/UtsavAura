@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 class FileUploader{
-    constructor({ folderName = "uploads", supportedFiles = ["image/png", "image/jpg", "image/jpeg"], maxSize = 10 * 1024 * 1024 }){
+    constructor({ folderName = "uploads", supportedFiles = ["image/png", "image/jpg", "image/jpeg", "image/avif"], maxSize = 10 * 1024 * 1024 }){
         this.folderName = folderName;
         this.supportedFiles = supportedFiles;
         this.maxSize = maxSize;

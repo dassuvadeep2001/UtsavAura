@@ -1,4 +1,3 @@
-const express = require("express");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
@@ -62,8 +61,7 @@ class UserController {
       if (isEmailExist.length > 0) {
         return res.json({
           status: 400,
-          message: "Email already exists",
-          data: {},
+          message: "Email already exists"
         });
       }
 

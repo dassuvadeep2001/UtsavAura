@@ -28,6 +28,9 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/user', require('./routes/user.routes'));
+app.use('/api/category', require('./routes/category.routes'));
+app.use('/api/eventManager', require('./routes/eventManager.routes'));
+app.use('/api/review', require('./routes/review.routes'));
 
 app.listen(process.env.PORT, async () => {
     await db.connectDb();
