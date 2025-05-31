@@ -1,2 +1,48 @@
 @import "tailwindcss";
 
+body {
+  background-color: #0d0d0d;
+  margin: 0;
+  padding: 0;
+}
+.swiper {
+  overflow: visible;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.swiper-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* Base slide style */
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  transform: scale(0.8);
+  transition: transform 500ms ease, opacity 500ms ease;
+  z-index: 1;
+  opacity: 0.8;
+  margin: 50px 0;
+}
+
+/* Active slide (centered) */
+.swiper-slide-active {
+  transform: scale(1.2) !important;
+  z-index: 10;
+  opacity: 1;
+}
+
+/* Adjacent slides (prev/next) */
+.swiper-slide-prev,
+.swiper-slide-next {
+  transform: scale(0.8) !important;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+/* All other slides */
+.swiper-slide:not(.swiper-slide-active):not(.swiper-slide-prev):not(.swiper-slide-next) {
+  transform: scale(0.8) !important;
+}
