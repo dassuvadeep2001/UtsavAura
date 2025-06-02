@@ -1,9 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowUpCircle,
   CalendarDays,
-  ArrowRight,
   User,
   Tag,
   ChevronRight,
@@ -107,7 +105,7 @@ const Blog = () => {
   ];
 
   return (
-    <div className="bg-[#0D0D0D] text-white relative overflow-x-hidden">
+    <div className="bg-[#0D0D0D] text-white relative overflow-hidden">
       {/* Hero Section with Video */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background */}
@@ -175,21 +173,19 @@ const Blog = () => {
         </motion.div>
 
         {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{
-            opacity: [0, 1, 0],
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
-        >
-          <ArrowUpCircle size={40} className="rotate-180 text-[#D4AF37]/80" />
-        </motion.div>
+       <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 1 }}
+                 className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
+               >
+                 <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
+                   <ChevronRight
+                     className="text-[#D4AF37] transform rotate-90"
+                     size={20}
+                   />
+                 </div>
+               </motion.div>
       </section>
 
       <section
@@ -304,7 +300,7 @@ const Blog = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="py-20 px-6 relative ">
+      <section className="py-20 px-6 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] to-[#0D0D0D] z-0"></div>
         <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-2xl"></div>

@@ -13,6 +13,10 @@ class UserRepository {
         return await userModel.create(userData);
     }
 
+    async findByEmailVerifyToken(token) {
+    return await userModel.findOne({ emailVerifyToken: token });
+   }
+
     async findById(id) {
         return await userModel.findById(id);
     }
@@ -22,7 +26,7 @@ class UserRepository {
     }
 
     async updateById(id, update) {
-        return await userModel.updateOne({ _id: id }, update);
+        return await userModel.findByIdAndUpdate({ _id: id }, update);
     }
 
     async getPublicProfileById(id) {

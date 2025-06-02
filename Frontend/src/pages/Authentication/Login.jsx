@@ -265,6 +265,9 @@ const Login = () => {
                 </motion.p>
               )}
             </div>
+              <p onClick={() => navigate("/forgot-password")} className="text-right text-sm text-[#B0B0B0] hover:text-[#D4AF37] cursor-pointer mt-2">
+               Forgot password?
+              </p>
 
             <motion.button
               whileHover={{ scale: 1.02 }}

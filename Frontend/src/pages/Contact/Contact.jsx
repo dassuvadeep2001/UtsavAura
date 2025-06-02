@@ -6,7 +6,6 @@ import {
   MapPin,
   Send,
   ChevronRight,
-  Sparkles,
   ArrowUpCircle,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -208,20 +207,18 @@ const Contact = () => {
 
         {/* Scroll Indicator */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{
-            opacity: [0, 1, 0],
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
-        >
-          <ArrowUpCircle size={40} className="rotate-180 text-[#D4AF37]/80" />
-        </motion.div>
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                  className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
+                >
+                  <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
+                    <ChevronRight
+                      className="text-[#D4AF37] transform rotate-90"
+                      size={20}
+                    />
+                  </div>
+                </motion.div>
       </section>
 
       {/* Contact Form & Info */}

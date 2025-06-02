@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 // Reusable Dropdown Component
-const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose }) => {
+const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose, onItemClick }) => {
   return (
     <div className="relative">
       <button
@@ -41,10 +41,11 @@ const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose }) => {
             : "opacity-0 -translate-y-2 invisible pointer-events-none"
         }`}
       >
-        {items.map(({ to, icon, title, desc }, idx) => (
+        {items.map(({ to, icon, title, desc,  }, idx) => (
           <Link
             to={to}
             key={idx}
+            onClick={onItemClick}
             className="flex items-start gap-4 px-6 py-3 hover:bg-[#1A1A1A] transition-colors duration-200 group"
           >
             <div className="group-hover:scale-110 transition-transform duration-200">
@@ -93,6 +94,10 @@ const Navbar = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  const closeExploreDropdown = () => {
+    setExploreOpen(false);
+  };
 
   const servicesItems = [
     {
@@ -213,6 +218,7 @@ const Navbar = () => {
             isOpen={exploreOpen}
             onToggle={() => setExploreOpen((prev) => !prev)}
             onClose={() => setServicesOpen(false)}
+            onItemClick={closeExploreDropdown}
           />
 
           <Link

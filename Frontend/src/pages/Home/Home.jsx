@@ -38,7 +38,7 @@ const Counter = ({ target, suffix = "", duration = 2 }) => {
     const end = parseInt(target);
     if (start === end) return;
 
-    const incrementTime = (duration * 5000) / end;
+    const incrementTime = (duration * 8000) / end;
     const timer = setInterval(() => {
       start += 1;
       setCount(start);

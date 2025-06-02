@@ -9,8 +9,8 @@ const userSchema = new mongoose.Schema({
     profileImage: { type: String },
     password: { type: String },
     role: { type: String, enum: ['user', 'admin', 'eventManager'], default: 'user' },
-    otp: { type: String },
-    otpCreatedAt: { type: Date }, 
+    isVerified: { type: Boolean, default: false },
+    emailVerifyToken: { type: String },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true, versionKey: false });
 

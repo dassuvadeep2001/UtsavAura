@@ -1,15 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./sections/Authentication/Login";
-import UserRegister from "./sections/Authentication/UserRegister";
-import ChooseUserPage from "./sections/Authentication/ChooseUser";
+import Login from "./pages/Authentication/Login";
+import UserRegister from "./pages/Authentication/UserRegister";
+import ChooseUserPage from "./pages/Authentication/ChooseUser";
 import Layout from "./layout/layout";
-import About from "./sections/About/About";
-import Contact from "./sections/Contact/Contact";
-import Faq from "./sections/Explore/Faq";
-import Blog from "./sections/Explore/Blog";
-import PaymentInfo from "./sections/Explore/Payment";
-import Legal from "./sections/Explore/Legal";
-import Home from "./sections/Home/Home";
+import About from "./pages/About/About";
+import Contact from "./pages/Contact/Contact";
+import Faq from "./pages/Explore/Faq";
+import Blog from "./pages/Explore/Blog";
+import PaymentInfo from "./pages/Explore/Payment";
+import Legal from "./pages/Explore/Legal";
+import Home from "./pages/Home/Home";
+import ForgotPasswordPage from "./pasword/forgetPassword";
+import ResetPasswordPage from "./pasword/resetPassword";
+import NotFoundPage from "./pnf/pageNotFound";
 
 function App() {
   return (
@@ -27,8 +30,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/user-register" element={<UserRegister />} />
           <Route path="/choose-user" element={<ChooseUserPage />} />
-        
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

@@ -67,7 +67,6 @@ class UserController {
 
       let profileImage = req.file ? req.file.filename : "";
       let hashedPassword = await userRepo.hashPassword(password);
-      let otp = Math.floor(100000 + Math.random() * 900000);
 
       let user = await userRepo.createUser({
         name,
@@ -76,30 +75,35 @@ class UserController {
         address,
         profileImage,
         password: hashedPassword,
-        otp,
-        otpCreatedAt: new Date(),
       });
 
       if (user) {
+        const emailVerifyToken = crypto.randomBytes(32).toString("hex");
+        await userRepo.updateById(user._id, {
+          emailVerifyToken,
+        });
         const mailer = new Mailer(
           "Gmail",
           process.env.APP_EMAIL,
           process.env.APP_PASSWORD
         );
+        const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${emailVerifyToken}`;
         let mailObj = {
           to: email,
-          subject: "Registration Confirmation",
+          subject: "Verify Your Email",
           html: `<div style="line-height: 1.6;">
-        <h2 style="color: #4A90E2;">Hi ${name},</h2>
-        <p>Thank you for registering with us. To complete your registration, please verify your email address using the OTP below:</p>
-        <div style="margin: 20px 0; padding: 10px; background-color: #f1f1f1; border-left: 4px solid #4A90E2;">
-          <p style="font-size: 20px; font-weight: bold; color: #4A90E2; margin: 0;">${otp}</p>
-        </div>
-        <p>This OTP is valid for a limited time. Please do not share it with anyone.</p>
-        <br/>
-        <p>Best regards,<br/>The UtsavAura Team</p>
-      </div>`,
-        };
+          <h2 style="color: #4A90E2;">Hi ${name},</h2>
+          <p>Thank you for registering with us. Please verify your email address by clicking the button below:</p>
+          <div style="margin: 20px 0;">
+            <a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#4A90E2;color:#fff;text-decoration:none;border-radius:5px;">Verify Email</a>
+          </div>
+          <p>If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="color: #4A90E2; word-break: break-all;">${verifyLink}</p>
+          <p>If you did not register, please ignore this email.</p>
+          <br/>
+          <p>Best regards,<br/>The UtsavAura Team</p>
+        </div>`,
+      };
         mailer.sendMail(mailObj);
       }
 
@@ -180,74 +184,21 @@ class UserController {
 
   async verifyEmail(req, res) {
     try {
-      const { email, otp } = req.body;
-      if (!email || !otp) {
-        return res.json({
-          status: 400,
-          message: "Email and OTP are required",
-          data: {},
-        });
-      }
-
-      const userArr = await userRepo.findByEmail(email);
-      if (userArr.length === 0) {
-        return res.json({
-          status: 400,
-          message: "Invalid OTP or user not found",
-          data: {},
-        });
-      }
-
-      const user = userArr[0];
-
-      // Check if OTP expired (3 days)
-      if (user.otp && user.otpCreatedAt) {
-        const otpCreatedAt = new Date(user.otpCreatedAt);
-        const now = new Date();
-        const diffMs = now - otpCreatedAt;
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-        if (diffDays > 3) {
-          // Delete profile image if exists
-          if (user.profileImage) {
-            const imagePath = path.join(
-              process.cwd(),
-              "uploads",
-              user.profileImage
-            );
-            if (fs.existsSync(imagePath)) {
-              fs.unlinkSync(imagePath);
-            }
-          }
-          // Delete user if OTP expired
-          await userRepo.deleteByEmail(email);
-          return res.json({
-            status: 400,
-            message:
-              "OTP expired. Your registration has been removed. Please register again.",
-            data: {},
-          });
-        }
-      }
-
-      if (user.otp == otp) {
-        await userRepo.updateByEmail(email, { otp: null, otpCreatedAt: null });
-        return res.json({
-          status: 200,
-          message: "Email verified successfully",
-          data: {},
-        });
-      }
-
-      return res.json({
-        status: 400,
-        message: "Invalid OTP or user not found",
-        data: {},
-      });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ status: 500, message: error.message, data: {} });
+    const { token } = req.params;
+    const user = await userRepo.findByEmailVerifyToken(token);
+    console.log("User found for verification:", user);
+    
+    if (!user) {
+      return res.status(400).json({ status: 400, message: "Invalid or expired verification link", data: {} });
     }
+    if (user.isVerified) {
+      return res.json({ status: 200, message: "Email already verified", data: {} });
+    }
+    await userRepo.updateById(user._id, { isVerified: true, emailVerifyToken: null });
+    return res.json({ status: 200, message: "Email verified successfully", data: {} });
+  } catch (error) {
+    return res.status(500).json({ status: 500, message: error.message, data: {} });
+  }
   }
 
   async forgetPassword(req, res) {
@@ -266,7 +217,7 @@ class UserController {
         return res.json({ status: 400, message: "User not found", data: {} });
       }
 
-      const resetLink = `http://localhost:3000/reset-password/${user._id}`;
+      const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}`;
       const mailer = new Mailer(
         "Gmail",
         process.env.APP_EMAIL,
