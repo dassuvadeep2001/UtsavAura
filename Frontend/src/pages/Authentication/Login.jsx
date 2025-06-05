@@ -12,16 +12,19 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { motion } from "framer-motion";
+import axiosInstance from "../../api/axiosInstance";
+import { endpoints } from "../../api/api_url";
 
 const Login = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -38,28 +41,52 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
+    setError("");
+
     try {
-      const endpoint = isAdmin ? "/admin/login" : "/user/login";
-      const response = await axiosInstance.post(endpoint, {
+      const response = await axiosInstance.post(endpoints.login, {
         email: data.email,
         password: data.password,
+        role: isAdmin ? "admin" : "user",
       });
 
-      localStorage.setItem("x-access-token", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-
-      axiosInstance.defaults.headers.common["x-access-token"] =
-        response.data.accessToken;
-
-      toast.success("Login successful!");
-      const redirectPath = isAdmin ? "/admin/dashboard" : "/user/dashboard";
-      navigate(redirectPath);
-    } catch (error) {
-      let errorMessage = "Login failed";
-      if (error.response) {
-        errorMessage = error.response?.data?.message || errorMessage;
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Login failed");
       }
-      toast.error(errorMessage);
+
+      const { token, user } = response.data;
+
+      if (!user || !user.role) {
+        throw new Error("Invalid user data received from server");
+      }
+
+      // Store authentication data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect based on role
+      switch (user.role) {
+        case "admin":
+          navigate("/admin/dashboard");
+          break;
+        case "eventManager":
+          navigate("/event-manager/dashboard");
+          break;
+        default:
+          navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Login failed. Please try again.";
+      setError(errorMessage);
+
+      // Show more specific error for admin/user mismatch
+      if (err.response?.status === 403) {
+        setError(err.response.data.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,6 +211,12 @@ const Login = () => {
               </motion.button>
             </div>
           </motion.div>
+          {/* Add this below the toggle buttons */}
+          <p className="text-center text-xs text-[#B0B0B0] mt-1">
+            {isAdmin
+              ? "Only admin accounts can login here"
+              : "Users and event managers can login here"}
+          </p>
 
           {/* Form */}
           <motion.form
@@ -265,9 +298,12 @@ const Login = () => {
                 </motion.p>
               )}
             </div>
-              <p onClick={() => navigate("/forgot-password")} className="text-right text-sm text-[#B0B0B0] hover:text-[#D4AF37] cursor-pointer mt-2">
-               Forgot password?
-              </p>
+            <p
+              onClick={() => navigate("/forgot-password")}
+              className="text-right text-sm text-[#B0B0B0] hover:text-[#D4AF37] cursor-pointer mt-2"
+            >
+              Forgot password?
+            </p>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
