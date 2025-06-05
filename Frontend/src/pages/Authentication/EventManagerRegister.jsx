@@ -277,7 +277,7 @@ export function EventManagerRegister() {
         <div className="mt-auto pt-8 border-t border-[#333333]">
           <p className="text-sm text-[#B0B0B0]">
             Already have an account?{" "}
-            <a href="#" className="text-[#D4AF37] hover:underline">
+            <a href="/login" className="text-[#D4AF37] hover:underline">
               Sign in
             </a>
           </p>
@@ -474,12 +474,7 @@ export function EventManagerRegister() {
                         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
                       />
                     </div>
-                    {methods.formState.errors.phone && (
-                      <p className="mt-1 text-sm text-[#FF5E5B] flex items-center">
-                        <AlertTriangle size={14} className="mr-1" />
-                        {methods.formState.errors.phone.message}
-                      </p>
-                    )}
+                    
                     {methods.formState.errors.phone ? (
                       <p className="mt-1 text-sm text-[#FF5E5B] flex items-center">
                         <AlertTriangle size={14} className="mr-1" />
