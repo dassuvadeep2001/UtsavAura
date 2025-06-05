@@ -9,7 +9,6 @@ const {
   resetPasswordValidator,
 } = require("../validators/user.validator");
 
-
 const crypto = require("crypto");
 //encrypt and decrypt functions
 const ENCRYPTION_KEY =
@@ -61,7 +60,7 @@ class UserController {
       if (isEmailExist.length > 0) {
         return res.json({
           status: 400,
-          message: "Email already exists"
+          message: "Email already exists",
         });
       }
 
@@ -75,6 +74,7 @@ class UserController {
         address,
         profileImage,
         password: hashedPassword,
+        role: "user",
       });
 
       if (user) {
@@ -103,7 +103,7 @@ class UserController {
           <br/>
           <p>Best regards,<br/>The UtsavAura Team</p>
         </div>`,
-      };
+        };
         mailer.sendMail(mailObj);
       }
 
@@ -122,83 +122,120 @@ class UserController {
 
   async login(req, res) {
     try {
-      const { email, password } = req.body;
+      const { email, password, role } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({
-          status: 400,
+          success: false,
           message: "Email and password are required",
-          data: {},
         });
       }
 
-      let user = await userRepo.findByEmail(email);
-
-      if (user.length > 0) {
-        if (user[0].otp) {
-          return res.json({
-            status: 400,
-            message: "User not verified. Please verify via OTP within 3 days.",
-            data: {},
-          });
-        }
-
-        let isMatch = await userRepo.validatePassword(
-          password,
-          user[0].password
-        );
-        if (!isMatch) {
-          return res.json({
-            status: 400,
-            message: "Invalid credentials",
-            data: {},
-          });
-        }
-
-        let token = jwt.sign({ id: user[0]._id }, process.env.JWT_SECRET, {
-          expiresIn: "1d",
+      const user = await userRepo.findByEmail(email);
+      if (!user || user.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
         });
-        let encryptedToken = encrypt(token);
+      }
 
-        let userData = await userRepo.getPublicProfileById(user[0]._id);
+      const userObj = user[0];
 
+      // Password validation
+      const isMatch = await userRepo.validatePassword(
+        password,
+        userObj.password
+      );
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid credentials",
+        });
+      }
+
+      // Role validation
+      if (role === "admin" && userObj.role !== "admin") {
+        return res.status(403).json({
+          success: false,
+          message: "Admin access denied. Please use admin credentials.",
+        });
+      }
+
+      if (role === "user" && userObj.role === "admin") {
+        return res.status(403).json({
+          success: false,
+          message: "Please use the Admin Login portal for this account.",
+        });
+      }
+
+      // Token generation
+      const token = jwt.sign(
+        {
+          id: userObj._id,
+          role: userObj.role,
+          email: userObj.email,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      const encryptedToken = encrypt(token);
+      const userData = await userRepo.getPublicProfileById(userObj._id);
+
+      return res.status(200).json({
+        success: true,
+        message: "Login successful",
+        token: encryptedToken,
+        user: {
+          ...userData,
+          role: userObj.role, // Ensure role is included
+        },
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  }
+  async verifyEmail(req, res) {
+    try {
+      const { token } = req.params;
+      const user = await userRepo.findByEmailVerifyToken(token);
+      console.log("User found for verification:", user);
+
+      if (!user) {
+        return res
+          .status(400)
+          .json({
+            status: 400,
+            message: "Invalid or expired verification link",
+            data: {},
+          });
+      }
+      if (user.isVerified) {
         return res.json({
           status: 200,
-          message: "Login successfull",
-          data: userData,
-          token: encryptedToken, // Send encrypted token
-        });
-      } else {
-        return res.json({
-          status: 400,
-          message: "Authentication failed",
+          message: "Email already verified",
           data: {},
         });
       }
+      await userRepo.updateById(user._id, {
+        isVerified: true,
+        emailVerifyToken: null,
+      });
+      return res.json({
+        status: 200,
+        message: "Email verified successfully",
+        data: {},
+      });
     } catch (error) {
       return res
         .status(500)
         .json({ status: 500, message: error.message, data: {} });
     }
-  }
-
-  async verifyEmail(req, res) {
-    try {
-    const { token } = req.params;
-    const user = await userRepo.findByEmailVerifyToken(token);
-    console.log("User found for verification:", user);
-    
-    if (!user) {
-      return res.status(400).json({ status: 400, message: "Invalid or expired verification link", data: {} });
-    }
-    if (user.isVerified) {
-      return res.json({ status: 200, message: "Email already verified", data: {} });
-    }
-    await userRepo.updateById(user._id, { isVerified: true, emailVerifyToken: null });
-    return res.json({ status: 200, message: "Email verified successfully", data: {} });
-  } catch (error) {
-    return res.status(500).json({ status: 500, message: error.message, data: {} });
-  }
   }
 
   async forgetPassword(req, res) {
