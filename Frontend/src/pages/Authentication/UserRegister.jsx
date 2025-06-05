@@ -16,7 +16,9 @@ import {
   Smartphone,
 } from "lucide-react";
 import { motion } from "framer-motion";
-
+import axiosInstance from "../../api/axiosInstance";
+import { endpoints } from "../../api/api_url";
+import { useNavigate } from "react-router-dom";
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
@@ -33,7 +35,7 @@ const UserRegister = () => {
   const [preview, setPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -73,31 +75,101 @@ const UserRegister = () => {
     }
   };
 
-  const onSubmit = async (data) => {
-    if (data.captchaInput !== captcha) {
-      toast.error("Invalid CAPTCHA. Please try again.");
-      handleCaptchaRefresh();
-      return;
+ const onSubmit = async (data) => {
+  if (data.captchaInput !== captcha) {
+    toast.error("Invalid CAPTCHA. Please try again.");
+    handleCaptchaRefresh();
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const formData = new FormData();
+
+    // Clean and validate phone number
+    const phone = data.phone.replace(/\D/g, ""); // Remove all non-digits
+    if (phone.length !== 10) {
+      throw new Error("Phone number must be exactly 10 digits");
     }
 
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Registration Data:", {
-        ...data,
-        profileImage: data.profileImage?.name || "None",
-      });
-      toast.success("🎉 Registration successful! Welcome to UtsavAura!");
-      reset();
-      setPreview(null);
-      setCaptcha(generateCaptcha());
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
+    // Append all required fields in the exact format backend expects
+    formData.append("name", data.name.trim());
+    formData.append("email", data.email.trim().toLowerCase()); // Ensure lowercase email
+    formData.append("phone", phone);
+    formData.append("address", data.address.trim());
+    formData.append("password", data.password);
+
+    // Only append profileImage if it exists
+    if (data.profileImage instanceof File) {
+      formData.append("profileImage", data.profileImage);
     }
+
+    const response = await axiosInstance.post(endpoints.register, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.data.status !== 201) {
+      throw new Error(response.data.message || "Registration failed");
+    }
+
+    toast.success(
+      "🎉 Registration successful! Please check your email to verify your account."
+    );
+    reset();
+    setPreview(null);
+    setCaptcha(generateCaptcha());
+    navigate("/login");
+  } catch (error) {
+    let errorMessage = "Registration failed. Please try again.";
+
+    if (error.response && error.response.data) {
+      const { message, errors } = error.response.data;
+
+      // Show field-specific errors
+      if (errors && Array.isArray(errors)) {
+        errorMessage = errors
+          .map((e) => `${e.field}: ${e.message}`)
+          .join("<br />");
+      } else if (message) {
+        errorMessage = message;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    toast.error(errorMessage, {
+      autoClose: false,
+      dangerouslyHTMLString: true,
+    });
+
+    handleCaptchaRefresh();
+  } finally {
+    setIsLoading(false);
+  }
+};
+  const phoneValidation = {
+    required: "Phone number is required",
+    pattern: {
+      value: /^\d{10}$/,
+      message: "Phone must be 10 digits",
+    },
   };
+ 
+const passwordValidation = {
+  required: "Password is required",
+  minLength: {
+    value: 8,
+    message: "Password must be at least 8 characters",
+  },
+  pattern: {
+    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
+    message:
+      "Must include uppercase, lowercase, number, and special character (!@#$%^&*)",
+  },
+};
 
   const features = [
     {
@@ -325,13 +397,18 @@ const UserRegister = () => {
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <input
                     id="email"
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Enter a valid email",
-                      },
-                    })}
+                    {
+ ... register("email", {
+    required: "Email is required",
+    pattern: {
+      value: /^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)$/i,
+      message: "Please enter a valid email address"
+    },
+    validate: (value) => 
+      value.endsWith('.com') || value.endsWith('.net') || 
+      "Email must end with .com or .net"
+  })
+}
                     placeholder="you@example.com"
                     className={`w-full border-2 ${
                       errors.email
@@ -367,18 +444,13 @@ const UserRegister = () => {
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <input
                     id="phone"
-                    {...register("phone", {
-                      required: "Phone number is required",
-                      minLength: {
-                        value: 10,
-                        message: "Phone must be at least 10 digits",
-                      },
-                      maxLength: {
-                        value: 15,
-                        message: "Phone number too long",
-                      },
-                    })}
-                    placeholder="+1 234 567 8900"
+                    {...register("phone", phoneValidation)} // Already includes onChange
+                    placeholder="1234567890"
+                    maxLength={10}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      setValue("phone", value);
+                    }}
                     className={`w-full border-2 ${
                       errors.phone
                         ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
@@ -408,12 +480,24 @@ const UserRegister = () => {
                   htmlFor="address"
                   className="block font-medium text-[#B0B0B0]"
                 >
-                  City <span className="text-[#FF5E5B]">*</span>
+                  Address <span className="text-[#FF5E5B]">*</span>
                 </label>
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <input
                     id="address"
-                    {...register("address", { required: "City is required" })}
+                   {
+  ...register("address", { 
+    required: "Address is required",
+    minLength: {
+      value: 3,
+      message: "Address must be at least 3 characters"
+    },
+    maxLength: {
+      value: 100,
+      message: "Address must be less than 100 characters"
+    }
+  })
+}
                     placeholder="New York"
                     className={`w-full border-2 ${
                       errors.address
@@ -449,13 +533,7 @@ const UserRegister = () => {
                 <motion.div whileHover={{ scale: 1.01 }} className="relative">
                   <input
                     id="password"
-                    {...register("password", {
-                      required: "Password is required",
-                      minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters",
-                      },
-                    })}
+                    {...register("password", passwordValidation)}
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     className={`w-full border-2 ${

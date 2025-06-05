@@ -13,6 +13,7 @@ import Home from "./pages/Home/Home";
 import ForgotPasswordPage from "./pasword/forgetPassword";
 import ResetPasswordPage from "./pasword/resetPassword";
 import NotFoundPage from "./pnf/pageNotFound";
+import EventManagerRegister from "./pages/Authentication/EventManagerRegister";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/legal" element={<Legal />} />
           <Route path="/login" element={<Login />} />
           <Route path="/user-register" element={<UserRegister />} />
+          <Route path="/event-manager-register" element={<EventManagerRegister />} />
           <Route path="/choose-user" element={<ChooseUserPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
