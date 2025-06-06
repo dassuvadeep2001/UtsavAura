@@ -13,7 +13,7 @@ app.use(cors({
   credentials: true               // If you're using cookies/sessions
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

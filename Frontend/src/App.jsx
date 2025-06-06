@@ -14,6 +14,8 @@ import ForgotPasswordPage from "./pasword/forgetPassword";
 import ResetPasswordPage from "./pasword/resetPassword";
 import NotFoundPage from "./pnf/pageNotFound";
 import EventManagerRegister from "./pages/Authentication/EventManagerRegister";
+import Profile from "./pages/profile/profile";
+import ManageAccount from "./pages/profile/manageAccount";
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
           <Route path="/choose-user" element={<ChooseUserPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/manageAccount" element={<ManageAccount />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

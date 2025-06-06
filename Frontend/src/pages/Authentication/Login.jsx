@@ -55,25 +55,26 @@ const Login = () => {
       }
 
       const { token, user } = response.data;
+      console.log("Login response:", response.data);
+       // Store authentication data
+      localStorage.setItem("token", response.data.token);
+      console.log("Token:", response.data.token);
+      
 
       if (!user || !user.role) {
         throw new Error("Invalid user data received from server");
       }
 
-      // Store authentication data
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
       // Redirect based on role
       switch (user.role) {
         case "admin":
-          navigate("/admin/dashboard");
+          navigate("/profile");
           break;
         case "eventManager":
-          navigate("/event-manager/dashboard");
+          navigate("/profile");
           break;
         default:
-          navigate("/dashboard");
+          navigate("/profile");
       }
     } catch (err) {
       console.error("Login error:", err);

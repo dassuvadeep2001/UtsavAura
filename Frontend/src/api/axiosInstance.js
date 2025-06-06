@@ -8,7 +8,9 @@ let axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async function (config) {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+    
     if (token) {
       config.headers["x-access-token"] = token;
       //config.headers.Authorization=token
@@ -22,4 +24,6 @@ axiosInstance.interceptors.request.use(
 );
 
 export default axiosInstance;
+
+
 

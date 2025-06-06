@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const Mailer = require("../helper/mailer");
 const userRepo = require("../repository/user.repository");
+const eventManagerModel = require("../models/eventManager.model");
+const mongoose = require("mongoose");
 const {
   userValidator,
   updateUserValidator,
@@ -337,21 +339,86 @@ class UserController {
   }
 
   async profile(req, res) {
-    try {
-      const user = req.user;
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.json({
+        status: 400,
+        message: "User not found",
+        data: {},
+      });
+    }
+
+    // For normal user or admin
+    if (user.role === "user" || user.role === "admin") {
       const userData = await userRepo.getPublicProfileById(user._id);
       return res.json({
         status: 200,
         message: "User fetched successfully",
         data: userData,
       });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ status: 500, message: error.message, data: {} });
     }
-  }
 
+    // For event manager
+    if (user.role === "eventManager") {
+      const result = await eventManagerModel.aggregate([
+        { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "eventManagerId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        { $unwind: "$userDetails" },
+        {
+          $project: {
+            _id: 0,
+            name: "$userDetails.name",
+            email: "$userDetails.email",
+            phone: "$userDetails.phone",
+            address: "$userDetails.address",
+            profileImage: "$userDetails.profileImage",
+            gender: 1,
+            age: 1,
+            service: 1,
+            description: 1,
+            previousWorkImages: 1,
+            role: "$userDetails.role"
+          }
+        }
+      ]);
+
+      if (!result.length) {
+        return res.status(404).json({
+          status: 404,
+          message: "Event Manager profile not found",
+          data: {}
+        });
+      }
+
+      return res.json({
+        status: 200,
+        message: "Event Manager profile fetched successfully",
+        data: result[0]
+      });
+    }
+
+    // If role is not recognized
+    return res.status(400).json({
+      status: 400,
+      message: "Invalid user role",
+      data: {}
+    });
+
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: 500, message: error.message, data: {} });
+  }
+}
   async updateProfile(req, res) {
     try {
       const user = req.user;
