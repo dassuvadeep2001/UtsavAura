@@ -12,6 +12,7 @@ const {
 } = require("../validators/user.validator");
 
 const crypto = require("crypto");
+const userModel = require("../models/user.model");
 //encrypt and decrypt functions
 const ENCRYPTION_KEY =
   process.env.CRYPTO_SECRET || "12345678901234567890123456789012"; // 32 chars for AES-256
@@ -361,50 +362,85 @@ class UserController {
     }
 
     // For event manager
-    if (user.role === "eventManager") {
-      const result = await eventManagerModel.aggregate([
-        { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
-        {
-          $lookup: {
-            from: "users",
-            localField: "eventManagerId",
-            foreignField: "_id",
-            as: "userDetails"
-          }
-        },
-        { $unwind: "$userDetails" },
-        {
-          $project: {
-            _id: 0,
-            name: "$userDetails.name",
-            email: "$userDetails.email",
-            phone: "$userDetails.phone",
-            address: "$userDetails.address",
-            profileImage: "$userDetails.profileImage",
-            gender: 1,
-            age: 1,
-            service: 1,
-            description: 1,
-            previousWorkImages: 1,
-            role: "$userDetails.role"
-          }
-        }
-      ]);
-
-      if (!result.length) {
-        return res.status(404).json({
-          status: 404,
-          message: "Event Manager profile not found",
-          data: {}
-        });
+if (user.role === "eventManager") {
+  const result = await eventManagerModel.aggregate([
+    { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "eventManagerId",
+        foreignField: "_id",
+        as: "userDetails"
       }
-
-      return res.json({
-        status: 200,
-        message: "Event Manager profile fetched successfully",
-        data: result[0]
-      });
+    },
+    { $unwind: "$userDetails" },
+    {
+      $lookup: {
+        from: "reviews",
+        let: { eventManagerId: "$eventManagerId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] }
+            }
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "reviewer"
+            }
+          },
+          { $unwind: "$reviewer" },
+          {
+            $project: {
+              _id: 1,
+              star: "$rating",
+              review: 1,
+              createdAt: 1,
+              userId: 1,
+              reviewerName: "$reviewer.name",
+              reviewerEmail: "$reviewer.email"
+            }
+          }
+        ],
+        as: "reviews"
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        name: "$userDetails.name",
+        email: "$userDetails.email",
+        phone: "$userDetails.phone",
+        address: "$userDetails.address",
+        profileImage: "$userDetails.profileImage",
+        gender: 1,
+        age: 1,
+        service: 1,
+        description: 1,
+        previousWorkImages: 1,
+        role: "$userDetails.role",
+        reviews: 1 // Now includes reviewer name and email
+      }
     }
+  ]);
+
+  if (!result.length) {
+    return res.status(404).json({
+      status: 404,
+      message: "Event Manager profile not found",
+      data: {}
+    });
+  }
+
+  return res.json({
+    status: 200,
+    message: "Event Manager profile fetched successfully",
+    data: result[0]
+  });
+}
 
     // If role is not recognized
     return res.status(400).json({
@@ -478,6 +514,20 @@ class UserController {
         status: 200,
         message: "Profile deleted successfully",
         data: {},
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ status: 500, message: error.message, data: {} });
+    }
+  }
+  async getAllUsers(req, res) {
+    try {
+      const users = await userModel.find({ isDeleted: false , role: { $ne: "admin" }});
+      return res.json({
+        status: 200,
+        message: "Users fetched successfully",
+        data: users,
       });
     } catch (error) {
       return res

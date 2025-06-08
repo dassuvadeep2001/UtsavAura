@@ -12,4 +12,5 @@ router.post('/reset-password/:id', authController.resetPassword);
 router.get('/profile', auth.authenticate, authController.profile);
 router.put('/update-profile', auth.authenticate, fileUpload.upload().single('profileImage'), authController.updateProfile);
 router.delete('/delete-profile', auth.authenticate, authController.deleteProfile);
+router.get('/getAllUsers', auth.adminAuthenticate, authController.getAllUsers);
 module.exports = router;

@@ -43,6 +43,16 @@ async getFullDetailsById(id) {
       }
     },
     { $unwind: '$userDetails' },
+    // Lookup for all reviews
+    {
+      $lookup: {
+        from: 'reviews',
+        localField: 'eventManagerId',
+        foreignField: 'eventManagerId',
+        as: 'reviews'
+      }
+    },
+    // Lookup for average review
     {
       $lookup: {
         from: 'reviews',
@@ -64,15 +74,15 @@ async getFullDetailsById(id) {
       }
     },
     {
-  $addFields: {
-    avgReview: {
-      $round: [
-        { $ifNull: [ { $first: '$reviewStats.avgReview' }, 0 ] },
-        1
-      ]
-    }
-  }
-},
+      $addFields: {
+        avgReview: {
+          $round: [
+            { $ifNull: [ { $first: '$reviewStats.avgReview' }, 0 ] },
+            1
+          ]
+        }
+      }
+    },
     {
       $project: {
         _id: 0,
@@ -86,7 +96,8 @@ async getFullDetailsById(id) {
         service: 1,
         description: 1,
         previousWorkImages: 1,
-        avgReview: 1
+        avgReview: 1,
+        reviews: 1 
       }
     }
   ]);

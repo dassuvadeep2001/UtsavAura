@@ -6,5 +6,8 @@ export const endpoints = {
   login: "api/user/login",
   profile: "api/user/profile",
   categories: "api/category/getAllCategories",
+  createCategory: "api/category/createCategory",
+  allUser: "api/user/getAllUsers",
+  query: "api/query/getQueries",
 };
 export default base_url;
