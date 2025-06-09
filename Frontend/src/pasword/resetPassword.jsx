@@ -1,26 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { LockKeyhole } from "lucide-react"; // Icon for password reset
+import { LockKeyhole } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { endpoints } from "../api/api_url";
+import axiosInstance from "../api/axiosInstance";
 
 export default function ResetPasswordPage() {
-  const {
+ const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Updated Password:", data.password);
-    // Trigger password update logic here
-  };
-
+  const { id } = useParams();
+  const navigate = useNavigate();
   const password = watch("password");
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
+
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await axiosInstance.post(`${endpoints.resetPassword}/${id}`, {
+        password: data.password, confirmPassword: data.confirmPassword,
+      });
+       console.log("Reset password response:", response.data);
+      toast.success("Password updated successfully!");
+     if (response.data.status === 200) {
+      setPasswordUpdated(true);
+      setTimeout(() => navigate("/login"), 1500);
+     }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to update password. Try again."
+      );
+      setPasswordUpdated(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Animated blur background */}
+      {/* Background Dots */}
       <div className="absolute w-80 h-80 bg-[#D4AF37]/20 rounded-full top-10 left-10 blur-3xl opacity-20 animate-pulse" />
       <div className="absolute w-72 h-72 bg-[#FF5E5B]/20 rounded-full bottom-10 right-10 blur-3xl opacity-20 animate-pulse" />
 
@@ -43,7 +65,7 @@ export default function ResetPasswordPage() {
 
         {/* Right Section */}
         <div className="w-full lg:w-1/2 p-8">
-          {isSubmitSuccessful ? (
+          {passwordUpdated ? (
             <p className="text-green-400 text-center">
               Password has been successfully updated!
             </p>
@@ -124,14 +146,16 @@ export default function ResetPasswordPage() {
               </button>
             </form>
           )}
+
           <p className="mt-6 text-sm text-[#B0B0B0] text-center">
-          Remember your password?{" "}
-          <a href="/login" className="text-[#D4AF37] hover:underline">
-            Go back to login
-          </a>
-        </p>
+            Remember your password?{" "}
+            <a href="/login" className="text-[#D4AF37] hover:underline">
+              Go back to login
+            </a>
+          </p>
         </div>
       </motion.div>
     </div>
   );
 }
+

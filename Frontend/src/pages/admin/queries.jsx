@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
+import { Sparkles } from "lucide-react";
 
 const Queries = () => {
   const [queries, setQueries] = useState([]);
@@ -32,7 +33,22 @@ const Queries = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] px-4 py-10 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] px-4 py-10 text-white overflow-hidden relative">
+      <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-3xl"></div>
+        <div className="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-[#FF5E5B]/10 blur-3xl"></div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex justify-center mb-8"
+        >
+            <div className="w-60 flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
+            <Sparkles className="text-[#D4AF37] mr-2" size={18} />
+            <span className="text-[#D4AF37] text-sm font-medium">
+              UtsavAura Admin Team
+            </span>
+          </div>
+          </motion.div>
       <motion.div
         className="max-w-6xl mx-auto backdrop-blur-sm bg-[#1a1a1a]/70 p-8 rounded-2xl shadow-[0_0_30px_rgba(212,175,55,0.2)] border border-[#2a2a2a]"
         initial={{ opacity: 0, y: 30 }}

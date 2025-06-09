@@ -69,7 +69,7 @@ const resetPasswordValidator = joi.object({
     }),
     confirmPassword: joi.string().valid(joi.ref('password')).required().messages({
         'any.required': 'Confirm Password is required',
-        'any.only': 'Confirm Password must match Password',
+        'any.only': 'Passwords do not match',
     })
 });
 

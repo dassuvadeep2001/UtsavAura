@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   RefreshCw,
   UserPlus,
@@ -18,10 +16,12 @@ import {
 import { motion } from "framer-motion";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const chars =
+    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
   let captcha = "";
   for (let i = 0; i < 6; i++) {
     captcha += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -35,7 +35,8 @@ const UserRegister = () => {
   const [preview, setPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -75,81 +76,81 @@ const UserRegister = () => {
     }
   };
 
- const onSubmit = async (data) => {
-  if (data.captchaInput !== captcha) {
-    toast.error("Invalid CAPTCHA. Please try again.");
-    handleCaptchaRefresh();
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const formData = new FormData();
-
-    // Clean and validate phone number
-    const phone = data.phone.replace(/\D/g, ""); // Remove all non-digits
-    if (phone.length !== 10) {
-      throw new Error("Phone number must be exactly 10 digits");
+  const onSubmit = async (data) => {
+    if (data.captchaInput !== captcha) {
+      alert("Invalid CAPTCHA. Please try again.");
+      handleCaptchaRefresh();
+      return;
     }
 
-    // Append all required fields in the exact format backend expects
-    formData.append("name", data.name.trim());
-    formData.append("email", data.email.trim().toLowerCase()); // Ensure lowercase email
-    formData.append("phone", phone);
-    formData.append("address", data.address.trim());
-    formData.append("password", data.password);
+    setIsLoading(true);
 
-    // Only append profileImage if it exists
-    if (data.profileImage instanceof File) {
-      formData.append("profileImage", data.profileImage);
-    }
+    try {
+      const formData = new FormData();
 
-    const response = await axiosInstance.post(endpoints.register, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    if (response.data.status !== 201) {
-      throw new Error(response.data.message || "Registration failed");
-    }
-
-    toast.success(
-      "🎉 Registration successful! Please check your email to verify your account."
-    );
-    reset();
-    setPreview(null);
-    setCaptcha(generateCaptcha());
-    navigate("/login");
-  } catch (error) {
-    let errorMessage = "Registration failed. Please try again.";
-
-    if (error.response && error.response.data) {
-      const { message, errors } = error.response.data;
-
-      // Show field-specific errors
-      if (errors && Array.isArray(errors)) {
-        errorMessage = errors
-          .map((e) => `${e.field}: ${e.message}`)
-          .join("<br />");
-      } else if (message) {
-        errorMessage = message;
+      // Clean and validate phone number
+      const phone = data.phone.replace(/\D/g, ""); // Remove all non-digits
+      if (phone.length !== 10) {
+        throw new Error("Phone number must be exactly 10 digits");
       }
-    } else if (error.message) {
-      errorMessage = error.message;
+
+      // Append all required fields in the exact format backend expects
+      formData.append("name", data.name.trim());
+      formData.append("email", data.email.trim().toLowerCase()); // Ensure lowercase email
+      formData.append("phone", phone);
+      formData.append("address", data.address.trim());
+      formData.append("password", data.password);
+
+      // Only append profileImage if it exists
+      if (data.profileImage instanceof File) {
+        formData.append("profileImage", data.profileImage);
+      }
+
+      const response = await axiosInstance.post(
+        endpoints.register,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.status !== 201) {
+        throw new Error(response.data.message || "Registration failed");
+      }
+
+      // ✅ Show success message instead of redirecting
+      setShowSuccessMessage(true);
+
+      // Optional: Clear form and CAPTCHA
+      reset();
+      setPreview(null);
+      setCaptcha(generateCaptcha());
+
+    } catch (error) {
+      let errorMessage = "Registration failed. Please try again.";
+      if (error.response && error.response.data) {
+        const { message, errors: fieldErrors } = error.response.data;
+
+        if (fieldErrors && Array.isArray(fieldErrors)) {
+          errorMessage = fieldErrors
+            .map((e) => `${e.field}: ${e.message}`)
+            .join("<br />");
+        } else if (message) {
+          errorMessage = message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+      handleCaptchaRefresh();
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    toast.error(errorMessage, {
-      autoClose: false,
-      dangerouslyHTMLString: true,
-    });
-
-    handleCaptchaRefresh();
-  } finally {
-    setIsLoading(false);
-  }
-};
   const phoneValidation = {
     required: "Phone number is required",
     pattern: {
@@ -157,19 +158,19 @@ const UserRegister = () => {
       message: "Phone must be 10 digits",
     },
   };
- 
-const passwordValidation = {
-  required: "Password is required",
-  minLength: {
-    value: 8,
-    message: "Password must be at least 8 characters",
-  },
-  pattern: {
-    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
-    message:
-      "Must include uppercase, lowercase, number, and special character (!@#$%^&*)",
-  },
-};
+
+  const passwordValidation = {
+    required: "Password is required",
+    minLength: {
+      value: 8,
+      message: "Password must be at least 8 characters",
+    },
+    pattern: {
+      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
+      message:
+        "Must include uppercase, lowercase, number, and special character (!@#$%^&*)",
+    },
+  };
 
   const features = [
     {
@@ -235,7 +236,6 @@ const passwordValidation = {
             />
           ))}
         </div>
-
         <div className="relative z-10 mb-8">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -280,7 +280,6 @@ const passwordValidation = {
             ))}
           </div>
         </div>
-
         <div className="mt-auto relative z-10">
           <motion.h3
             initial={{ opacity: 0 }}
@@ -342,8 +341,10 @@ const passwordValidation = {
             </p>
           </motion.div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Two-column grid */}
+          {/* Conditional Rendering Based on Registration Status */}
+          {!showSuccessMessage ? (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* Two-column grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <motion.div
@@ -787,49 +788,70 @@ const passwordValidation = {
                 )}
               </div>
             </motion.div>
-
-            {/* Submit Button */}
-            <motion.button
-              initial={{ opacity: 0, y: 10 }}
+              {/* Submit Button */}
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isLoading}
+                className={`w-full bg-[#FF5E5B] hover:bg-[#FF5E5B]/90 text-white py-3.5 rounded-xl transition-all font-semibold shadow-lg hover:shadow-[#FF5E5B]/30 mt-4 flex items-center justify-center border-2 border-[#FF5E5B]/30 ${
+                  isLoading ? "opacity-90 cursor-not-allowed" : ""
+                }`}
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : (
+                  <span className="drop-shadow-sm">Register Now</span>
+                )}
+              </motion.button>
+            </form>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isLoading}
-              className={`w-full bg-[#FF5E5B] hover:bg-[#FF5E5B]/90 text-white py-3.5 rounded-xl transition-all font-semibold shadow-lg hover:shadow-[#FF5E5B]/30 mt-4 flex items-center justify-center border-2 border-[#FF5E5B]/30 ${
-                isLoading ? "opacity-90 cursor-not-allowed" : ""
-              }`}
+              transition={{ duration: 0.4 }}
+              className="text-center space-y-4 p-6 bg-green-500/10 border border-green-500/30 rounded-xl"
             >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Creating Account...
-                </>
-              ) : (
-                <span className="drop-shadow-sm">Register Now</span>
-              )}
-            </motion.button>
-          </form>
+              <Check size={48} className="mx-auto text-green-400" />
+              <h3 className="text-xl font-bold text-white">
+                Registration Successful!
+              </h3>
+              <p className="text-[#B0B0B0]">
+                We've sent a verification link to your email. Please verify your account before logging in.
+              </p>
+              <Link
+                to="/login"
+                className="inline-block mt-4 px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white rounded-md hover:brightness-110 transition-colors"
+              >
+                Go to Login
+              </Link>
+            </motion.div>
+          )}
 
           {/* Login Link */}
           <motion.p
@@ -839,12 +861,12 @@ const passwordValidation = {
             className="text-center text-sm text-[#B0B0B0] mt-6"
           >
             Already have an account?{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="font-medium text-[#D4AF37] hover:text-[#D4AF37]/90 hover:underline transition-colors cursor-pointer"
             >
               Log In
-            </a>
+            </Link>
           </motion.p>
         </motion.div>
       </motion.div>

@@ -19,6 +19,7 @@ import ManageAccount from "./pages/profile/manageAccount";
 import User from "./pages/admin/user";
 import Queries from "./pages/admin/queries";
 import Category from "./pages/admin/category";
+import VerifyEmail from "./pages/Authentication/verifyEmail";
 
 function App() {
   return (
@@ -38,12 +39,13 @@ function App() {
           <Route path="/event-manager-register" element={<EventManagerRegister />} />
           <Route path="/choose-user" element={<ChooseUserPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/manageAccount" element={<ManageAccount />} />
           <Route path="/admin/users" element={<User />} />
           <Route path="/admin/queries" element={<Queries />} />
           <Route path="/admin/categories" element={<Category />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

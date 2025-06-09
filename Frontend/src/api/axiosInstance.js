@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
     
     if (token) {
       config.headers["x-access-token"] = token;
-      //config.headers.Authorization=token
+      config.headers.Authorization=token
       //config.headers.Authorization=`Bearer$(token)`
     }
     return config;

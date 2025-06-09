@@ -1,18 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { Mail } from "lucide-react"; // Lucide icon
+import { Mail } from "lucide-react";
+import { endpoints } from "../api/api_url";
+import axiosInstance from "../api/axiosInstance";
 
 export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Submitted Email:", data.email);
-    // Trigger password reset logic here
+  const [status, setStatus] = useState("idle"); // idle | success | error
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await axiosInstance.post(endpoints.forgetPassword, {
+        email: data.email,
+      });
+      if (response.status === 200) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setErrorMessage("Failed to send reset instructions. Please try again.");
+      }
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(
+        err?.response?.data?.message || "Something went wrong. Please try again."
+      );
+    }
   };
 
   return (
@@ -33,13 +52,13 @@ export default function ForgotPasswordPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-[#2A2A2A] p-3 rounded-full shadow-lg mb-3 ring-2 ring-[#D4AF37]/50"
-                      >
-                        <Mail className="text-[#D4AF37]" size={28} />
-                      </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-[#2A2A2A] p-3 rounded-full shadow-lg mb-3 ring-2 ring-[#D4AF37]/50"
+          >
+            <Mail className="text-[#D4AF37]" size={28} />
+          </motion.div>
           <h2 className="text-3xl font-bold text-white text-center drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
             Forgot Your <span className="text-[#D4AF37]">Password?</span>
           </h2>
@@ -51,12 +70,13 @@ export default function ForgotPasswordPage() {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="text-[#B0B0B0] text-sm text-center mb-6"
         >
-          No worries! Enter your email below and we’ll send you a link to reset your password and regain access to your account.
+          No worries! Enter your email below and we’ll send you a link to reset
+          your password and regain access to your account.
         </motion.p>
 
-        {isSubmitSuccessful ? (
+        {status === "success" ? (
           <p className="text-green-400 text-center">
-            Password reset instructions sent to your email.
+            ✅ Reset link has been sent to your email.
           </p>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -68,6 +88,10 @@ export default function ForgotPasswordPage() {
                 <input
                   {...register("email", {
                     required: "This field is required",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Invalid email address",
+                    },
                   })}
                   placeholder="Enter your email"
                   className={`w-full px-4 py-3 rounded-lg bg-[#2A2A2A] border-2 ${
@@ -88,6 +112,12 @@ export default function ForgotPasswordPage() {
               )}
             </div>
 
+            {status === "error" && (
+              <p className="text-[#FF5E5B] text-sm text-center -mt-2">
+                {errorMessage}
+              </p>
+            )}
+
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-[#FF5E5B] to-[#E74C3C] hover:from-[#E74C3C] hover:to-[#FF5E5B] text-white py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center"
@@ -107,5 +137,6 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+
 
 

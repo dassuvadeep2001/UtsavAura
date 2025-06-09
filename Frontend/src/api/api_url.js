@@ -9,5 +9,9 @@ export const endpoints = {
   createCategory: "api/category/createCategory",
   allUser: "api/user/getAllUsers",
   query: "api/query/getQueries",
+  verifyEmail: "api/user/verify-email",
+  forgetPassword: "api/user/forget-password",
+  resetPassword: "api/user/reset-password",
+  createQuery: "api/query/createQuery",
 };
 export default base_url;

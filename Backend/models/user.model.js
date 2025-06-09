@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin', 'eventManager'], default: 'user' },
     isVerified: { type: Boolean, default: false },
     emailVerifyToken: { type: String },
+    emailVerifyTokenCreatedAt: { type: Date },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true, versionKey: false });
 

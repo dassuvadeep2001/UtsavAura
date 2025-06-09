@@ -84,6 +84,7 @@ class UserController {
         const emailVerifyToken = crypto.randomBytes(32).toString("hex");
         await userRepo.updateById(user._id, {
           emailVerifyToken,
+          emailVerifyTokenCreatedAt: new Date(),
         });
         const mailer = new Mailer(
           "Gmail",
@@ -203,43 +204,49 @@ class UserController {
       });
     }
   }
-  async verifyEmail(req, res) {
-    try {
-      const { token } = req.params;
-      const user = await userRepo.findByEmailVerifyToken(token);
-      console.log("User found for verification:", user);
+async verifyEmail(req, res) {
+  try {
+    const { token } = req.params;
+    const user = await userRepo.findByEmailVerifyToken(token);
 
-      if (!user) {
-        return res
-          .status(400)
-          .json({
-            status: 400,
-            message: "Invalid or expired verification link",
-            data: {},
-          });
-      }
-      if (user.isVerified) {
-        return res.json({
-          status: 200,
-          message: "Email already verified",
-          data: {},
-        });
-      }
-      await userRepo.updateById(user._id, {
-        isVerified: true,
-        emailVerifyToken: null,
-      });
-      return res.json({
-        status: 200,
-        message: "Email verified successfully",
+    if (!user) {
+      return res.status(400).json({
+        status: 400,
+        message: "Invalid or expired verification link",
         data: {},
       });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ status: 500, message: error.message, data: {} });
     }
+
+    // Check if token is expired (5 minutes = 300000 ms)
+    const now = Date.now();
+    const createdAt = user.emailVerifyTokenCreatedAt
+      ? new Date(user.emailVerifyTokenCreatedAt).getTime()
+      : 0;
+    if (!createdAt || now - createdAt > 5 * 60 * 1000) {
+      // Expired: clear token
+      await userRepo.updateById(user._id, {
+        emailVerifyToken: null,
+        emailVerifyTokenCreatedAt: null,
+      });
+      return res.status(400).json({
+        status: 400,
+        message: "Verification link expired.",
+      });
+    }
+
+    await userRepo.updateById(user._id, {
+      isVerified: true
+    });
+    return res.json({
+      status: 200,
+      message: "Email verified successfully",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: 500, message: error.message, data: {} });
   }
+}
 
   async forgetPassword(req, res) {
     try {
@@ -310,13 +317,6 @@ class UserController {
         });
       }
       const { password, confirmPassword } = value;
-      if (password !== confirmPassword) {
-        return res.json({
-          status: 400,
-          message: "Password and confirm password does not match",
-          data: {},
-        });
-      }
 
       const { id } = req.params;
       const user = await userRepo.findById(id);
@@ -330,7 +330,6 @@ class UserController {
       return res.json({
         status: 200,
         message: "Password reset successfully",
-        data: {},
       });
     } catch (error) {
       return res

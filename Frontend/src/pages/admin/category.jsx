@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Sparkles } from "lucide-react";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
 
@@ -71,84 +71,99 @@ const Category = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] px-4 py-10 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] px-4 py-10 text-white overflow-hidden relative">
       {/* Main Container */}
       <div className="max-w-6xl mx-auto">
-
-        {/* Form Section Card */}
-<motion.div
-  className="backdrop-blur-sm bg-[#1a1a1a]/70 rounded-2xl shadow-[0_0_30px_rgba(212,175,55,0.2)] border border-[#2a2a2a] overflow-hidden"
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
->
-  <div className="grid grid-cols-1 md:grid-cols-2">
-    {/* Left Section - Solid Background with Gradient Heading */}
-    <div className="bg-[#121212] p-8 flex flex-col justify-center text-white relative">
-      {/* Divider (Vertical Line) - Golden Color */}
-      <div className="hidden md:block absolute top-0 right-0 h-full w-px bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
-
-      <h3 className="text-2xl w-60 font-semibold mb-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] bg-clip-text text-transparent">
-        {editingId ? "Edit Your Category" : "Add New Category"}
-      </h3>
-      <p className="text-sm leading-relaxed text-[#B0B0B0]">
-        {editingId
-          ? "Update the category details below. Make sure all information is accurate before saving."
-          : "Use this form to add a new category. Categories help you organize services in a clear and professional way."}
-      </p>
-    </div>
-
-    {/* Right Section - Form */}
-    <div className="p-8 bg-[#121212]">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Category Name */}
-        <div>
-          <label className="block text-sm font-medium text-[#B0B0B0] mb-1">
-            Category Name
-          </label>
-          <input
-            type="text"
-            placeholder="Enter category name"
-            {...register("category", {
-              required: "Category name is required",
-            })}
-            className="w-full bg-[#1f1f1f] border border-[#333] text-white placeholder-[#888] px-4 py-2 rounded-md focus:outline-none focus:border-[#D4AF37]"
-          />
-          {errors.category && (
-            <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>
-          )}
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-[#B0B0B0] mb-1">
-            Description
-          </label>
-          <input
-            type="text"
-            placeholder="Add a description"
-            {...register("descriptions", {
-              required: "Description is required",
-            })}
-            className="w-full bg-[#1f1f1f] border border-[#333] text-white placeholder-[#888] px-4 py-2 rounded-md focus:outline-none focus:border-[#D4AF37]"
-          />
-          {errors.descriptions && (
-            <p className="text-red-500 text-xs mt-1">{errors.descriptions.message}</p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="mt-2 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#FF5E5B] to-[#ff3733] text-white py-2 px-4 rounded-md font-semibold hover:brightness-110 transition-all"
+        <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-3xl"></div>
+        <div className="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-[#FF5E5B]/10 blur-3xl"></div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex justify-center mb-8"
         >
-          <Plus size={16} />
-          {editingId ? "Update Category" : "Add Category"}
-        </button>
-      </form>
-    </div>
-  </div>
-</motion.div>
+            <div className="w-60 flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
+            <Sparkles className="text-[#D4AF37] mr-2" size={18} />
+            <span className="text-[#D4AF37] text-sm font-medium">
+              UtsavAura Admin Team
+            </span>
+          </div>
+          </motion.div>
+        {/* Form Section Card - Glassmorphism Style */}
+        <motion.div
+          className="backdrop-blur-sm bg-white/5 rounded-2xl shadow-lg border border-white/10 overflow-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Left Section - Solid Background with Gradient Heading */}
+            <div className="bg-gradient-to-br from-[#0D0D0D] via-[#141414] to-[#1a1a1a] p-8 flex flex-col justify-center text-white relative">
+              {/* Divider (Vertical Line) - Golden Color */}
+              <div className="hidden md:block absolute top-0 right-0 h-full w-px bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
+
+              <h3 className="text-2xl w-60 font-semibold mb-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] bg-clip-text text-transparent">
+                {editingId ? "Edit Your Category" : "Add New Category"}
+              </h3>
+              <p className="text-sm leading-relaxed text-[#B0B0B0]">
+                {editingId
+                  ? "Update the category details below. Make sure all information is accurate before saving."
+                  : "Use this form to add a new category. Categories help you organize services in a clear and professional way."}
+              </p>
+            </div>
+
+            {/* Right Section - Form */}
+            <div className="p-8 bg-[#0D0D0D]/20 backdrop-blur-sm">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* Category Name */}
+                <div>
+                  <label className="block text-sm font-medium text-[#B0B0B0] mb-1">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter category name"
+                    {...register("category", {
+                      required: "Category name is required",
+                    })}
+                    className="w-full bg-[#1f1f1f] border border-[#333] text-white placeholder-[#888] px-4 py-2 rounded-md focus:outline-none focus:border-[#D4AF37]"
+                  />
+                  {errors.category && (
+                    <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-[#B0B0B0] mb-1">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Add a description"
+                    {...register("descriptions", {
+                      required: "Description is required",
+                    })}
+                    className="w-full bg-[#1f1f1f] border border-[#333] text-white placeholder-[#888] px-4 py-2 rounded-md focus:outline-none focus:border-[#D4AF37]"
+                  />
+                  {errors.descriptions && (
+                    <p className="text-red-500 text-xs mt-1">{errors.descriptions.message}</p>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="mt-2 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#FF5E5B] to-[#ff3733] text-white py-2 px-4 rounded-md font-semibold hover:brightness-110 transition-all"
+                >
+                  <Plus size={16} />
+                  {editingId ? "Update Category" : "Add Category"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Divider */}
         <div className="my-10 flex items-center justify-center">
           <hr className="w-full border-t border-[#2a2a2a]" />
@@ -156,9 +171,9 @@ const Category = () => {
           <hr className="w-full border-t border-[#2a2a2a]" />
         </div>
 
-        {/* Table Section Card */}
+        {/* Table Section Card - Glassmorphism Style */}
         <motion.div
-          className="backdrop-blur-sm bg-[#1a1a1a]/70 rounded-2xl shadow-[0_0_30px_rgba(212,175,55,0.2)] border border-[#2a2a2a] p-8"
+          className="backdrop-blur-sm bg-white/5 rounded-2xl shadow-lg border border-white/10 p-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}

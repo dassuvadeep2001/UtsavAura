@@ -15,7 +15,9 @@ const ManageAccount = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] px-4 py-10 text-white overflow-hidden relative flex justify-center items-center">
+      <div className="absolute -left-20 -top-20 w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-3xl"></div>
+        <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-[#FF5E5B]/10 blur-3xl"></div>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
