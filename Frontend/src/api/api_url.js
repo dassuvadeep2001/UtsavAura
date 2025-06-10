@@ -8,6 +8,7 @@ export const endpoints = {
   categories: "api/category/getAllCategories",
   createCategory: "api/category/createCategory",
   allUser: "api/user/getAllUsers",
+  emailCheck: "api/user/emailCheck",
   query: "api/query/getQueries",
   verifyEmail: "api/user/verify-email",
   forgetPassword: "api/user/forget-password",

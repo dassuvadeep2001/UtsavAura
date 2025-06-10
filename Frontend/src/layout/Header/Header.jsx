@@ -276,19 +276,20 @@ const Navbar = () => {
           >
             About
           </Link>
-
-          <DropdownMenu
-            id="services"
-            label="Services"
-            items={servicesItems}
-            isOpen={servicesOpen}
-            onToggle={() => {
-              setServicesOpen((prev) => !prev);
-              setExploreOpen(false);
-            }}
-            onClose={() => setExploreOpen(false)}
-            onItemClick={() => setServicesOpen(false)}
-          />
+{authState.isLoggedIn && (
+  <DropdownMenu
+    id="services"
+    label="Services"
+    items={servicesItems}
+    isOpen={servicesOpen}
+    onToggle={() => {
+      setServicesOpen((prev) => !prev);
+      setExploreOpen(false);
+    }}
+    onClose={() => setExploreOpen(false)}
+    onItemClick={() => setServicesOpen(false)}
+  />
+)}
 
           <DropdownMenu
             id="explore"
