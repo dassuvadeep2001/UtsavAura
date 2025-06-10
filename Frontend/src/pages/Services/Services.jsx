@@ -84,6 +84,12 @@ const Services = () => {
     };
     fetchData();
   }, [categoryId]);
+  // Add this effect at the top of your component
+  useEffect(() => {
+    if (!loading && !error) {
+      console.log("Event Managers Data:", eventManagers);
+    }
+  }, [eventManagers, loading, error]);
 
   // Set category content based on ID
   useEffect(() => {
@@ -466,21 +472,20 @@ const Services = () => {
               Explore Managers <ChevronRight size={20} />
             </motion.a>
           </motion.div>
-          
         </motion.div>
         <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1 }}
-                    className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
-                  >
-                    <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
-                      <ChevronRight
-                        className="text-[#D4AF37] transform rotate-90"
-                        size={20}
-                      />
-                    </div>
-                  </motion.div>
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
+        >
+          <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
+            <ChevronRight
+              className="text-[#D4AF37] transform rotate-90"
+              size={20}
+            />
+          </div>
+        </motion.div>
 
         {/* Floating Decor Elements */}
         <motion.div
@@ -643,7 +648,8 @@ const Services = () => {
               variants={fadeIn}
               className="text-lg text-[#B0B0B0] max-w-2xl mx-auto leading-relaxed"
             >
-              Handpicked professionals who transform your vision into unforgettable experiences
+              Handpicked professionals who transform your vision into
+              unforgettable experiences
             </motion.p>
           </div>
 
@@ -717,20 +723,43 @@ const Services = () => {
                     <span>{manager.address || "Kolkata"}</span>
                   </div>
                   {/* Rating */}
+
+                  {/* Rating */}
                   <div className="flex items-center gap-1 mb-6">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={20}
-                        className={
-                          i < (manager.rating || 4)
-                            ? "fill-[#D4AF37] text-[#D4AF37]"
-                            : "text-gray-500"
-                        }
-                      />
-                    ))}
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const rating =
+                        manager.avgReview || manager.averageRating || 0;
+                      const isFilled = star <= Math.floor(rating);
+                      const isHalf =
+                        star === Math.ceil(rating) && rating % 1 > 0;
+
+                      return (
+                        <div key={star} className="relative h-5 w-5">
+                          {/* Default empty star */}
+                          <Star
+                            size={20}
+                            className="absolute top-0 left-0 text-gray-500"
+                          />
+
+                          {/* Filled or half part of the star */}
+                          {isFilled ? (
+                            <Star
+                              size={20}
+                              className="fill-[#D4AF37] text-[#D4AF37]"
+                            />
+                          ) : isHalf ? (
+                            <div className="overflow-hidden absolute top-0 left-0 h-full w-1/2 pointer-events-none">
+                              <Star
+                                size={20}
+                                className="fill-[#D4AF37] text-[#D4AF37]"
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
                     <span className="ml-1 text-sm text-gray-300">
-                      ({manager.reviews || 12})
+                      ({manager.reviews?.length || manager.totalReviews || 0})
                     </span>
                   </div>
                   {/* View Portfolio Button */}
@@ -769,7 +798,8 @@ const Services = () => {
             variants={fadeIn}
             className="text-lg text-[#E0E0E0]"
           >
-            Get in touch with us to turn your ideas into beautifully orchestrated events filled with meaning and joy.
+            Get in touch with us to turn your ideas into beautifully
+            orchestrated events filled with meaning and joy.
           </motion.p>
           <motion.div
             initial="hidden"

@@ -20,8 +20,7 @@ import { Link } from "react-router-dom";
 
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
-  const chars =
-    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
   let captcha = "";
   for (let i = 0; i < 6; i++) {
     captcha += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -106,15 +105,11 @@ const UserRegister = () => {
         formData.append("profileImage", data.profileImage);
       }
 
-      const response = await axiosInstance.post(
-        endpoints.register,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axiosInstance.post(endpoints.register, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.data.status !== 201) {
         throw new Error(response.data.message || "Registration failed");
@@ -127,7 +122,6 @@ const UserRegister = () => {
       reset();
       setPreview(null);
       setCaptcha(generateCaptcha());
-
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
       if (error.response && error.response.data) {
@@ -345,449 +339,449 @@ const UserRegister = () => {
           {!showSuccessMessage ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Two-column grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="name"
-                  className="block font-medium text-[#B0B0B0]"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="space-y-1"
                 >
-                  Full Name <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
-                  <input
-                    id="name"
-                    {...register("name", { required: "Name is required" })}
-                    placeholder="John Doe"
-                    className={`w-full border-2 ${
-                      errors.name
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
-                  />
-                </motion.div>
-                {errors.name && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
+                  <label
+                    htmlFor="name"
+                    className="block font-medium text-[#B0B0B0]"
                   >
-                    {errors.name.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Email */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="email"
-                  className="block font-medium text-[#B0B0B0]"
-                >
-                  Email Address <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
-                  <input
-                    id="email"
-                    {
- ... register("email", {
-    required: "Email is required",
-    pattern: {
-      value: /^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)$/i,
-      message: "Please enter a valid email address"
-    },
-    validate: (value) => 
-      value.endsWith('.com') || value.endsWith('.net') || 
-      "Email must end with .com or .net"
-  })
-}
-                    placeholder="you@example.com"
-                    className={`w-full border-2 ${
-                      errors.email
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
-                  />
-                </motion.div>
-                {errors.email && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.email.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Phone */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="phone"
-                  className="block font-medium text-[#B0B0B0]"
-                >
-                  Phone Number <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
-                  <input
-                    id="phone"
-                    {...register("phone", phoneValidation)} // Already includes onChange
-                    placeholder="1234567890"
-                    maxLength={10}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "");
-                      setValue("phone", value);
-                    }}
-                    className={`w-full border-2 ${
-                      errors.phone
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
-                  />
-                </motion.div>
-                {errors.phone && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.phone.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Address (City Only) */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="address"
-                  className="block font-medium text-[#B0B0B0]"
-                >
-                  Address <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
-                  <input
-                    id="address"
-                   {
-  ...register("address", { 
-    required: "Address is required",
-    minLength: {
-      value: 3,
-      message: "Address must be at least 3 characters"
-    },
-    maxLength: {
-      value: 100,
-      message: "Address must be less than 100 characters"
-    }
-  })
-}
-                    placeholder="New York"
-                    className={`w-full border-2 ${
-                      errors.address
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
-                  />
-                </motion.div>
-                {errors.address && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.address.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Password */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="password"
-                  className="block font-medium text-[#B0B0B0]"
-                >
-                  Password <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }} className="relative">
-                  <input
-                    id="password"
-                    {...register("password", passwordValidation)}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className={`w-full border-2 ${
-                      errors.password
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF] pr-12`}
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0] hover:text-[#D4AF37]"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </motion.button>
-                </motion.div>
-                {errors.password && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.password.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Confirm Password */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-                className="space-y-1"
-              >
-                <label
-                  htmlFor="confirmPassword"
-                  className="block font-medium text-[#B0B0B0]"
-                >
-                  Confirm Password <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <motion.div whileHover={{ scale: 1.01 }} className="relative">
-                  <input
-                    id="confirmPassword"
-                    {...register("confirmPassword", {
-                      required: "Please confirm password",
-                      validate: (value) =>
-                        value === password || "Passwords do not match",
-                    })}
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className={`w-full border-2 ${
-                      errors.confirmPassword
-                        ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
-                    } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF] pr-12`}
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0] hover:text-[#D4AF37]"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
-                  </motion.button>
-                </motion.div>
-                {errors.confirmPassword && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.confirmPassword.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              {/* Profile Image Upload */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-                className="space-y-1"
-              >
-                <label className="block font-medium text-[#B0B0B0]">
-                  Profile Picture{" "}
-                  <span className="text-[#B0B0B0]">(Optional)</span>
-                </label>
-                <div className="flex items-center gap-4">
-                  <motion.label
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="cursor-pointer"
-                  >
-                    <div className="border-2 border-dashed border-[#333333] hover:border-[#D4AF37] rounded-xl p-2 transition-all group">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                      <div className="text-center py-2 px-4">
-                        <p className="text-sm text-[#B0B0B0] group-hover:text-[#D4AF37] transition-colors">
-                          {preview ? "Change Image" : "Upload Image"}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.label>
-                  {preview && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="relative"
-                    >
-                      <img
-                        src={preview}
-                        alt="Profile Preview"
-                        className="w-16 h-16 object-cover rounded-full border-2 border-[#D4AF37] shadow-sm"
-                      />
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        type="button"
-                        onClick={() => {
-                          setPreview(null);
-                          setValue("profileImage", null);
-                        }}
-                        className="absolute -top-2 -right-2 bg-[#FF5E5B] text-white rounded-full p-1 shadow-md hover:bg-[#FF5E5B]/90 transition-colors"
-                        aria-label="Remove image"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* CAPTCHA */}
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="space-y-1"
-              >
-                <label className="block font-medium text-[#B0B0B0]">
-                  CAPTCHA <span className="text-[#FF5E5B]">*</span>
-                </label>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-[#0D0D0D] px-4 py-3 rounded-xl text-lg font-mono tracking-wider text-[#D4AF37] flex-1 select-none border-2 border-[#333333]">
-                      {captcha}
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05, rotate: 180 }}
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={handleCaptchaRefresh}
-                      className="p-2.5 bg-[#1A1A1A] text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#252525] rounded-xl transition-all shadow-sm border-2 border-[#333333] cursor-pointer"
-                      aria-label="Refresh CAPTCHA"
-                    >
-                      <RefreshCw size={18} />
-                    </motion.button>
-                  </div>
+                    Full Name <span className="text-[#FF5E5B]">*</span>
+                  </label>
                   <motion.div whileHover={{ scale: 1.01 }}>
                     <input
-                      {...register("captchaInput", {
-                        required: "Please enter the CAPTCHA",
-                      })}
-                      placeholder="Type the CAPTCHA above"
+                      id="name"
+                      {...register("name", { required: "Name is required" })}
+                      placeholder="John Doe"
                       className={`w-full border-2 ${
-                        errors.captchaInput
+                        errors.name
                           ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
                           : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
                       } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                     />
                   </motion.div>
-                  {errors.captchaInput && (
+                  {errors.name && (
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="mt-1 text-sm text-[#FF5E5B]"
                     >
-                      {errors.captchaInput.message}
+                      {errors.name.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Email */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-1"
+                >
+                  <label
+                    htmlFor="email"
+                    className="block font-medium text-[#B0B0B0]"
+                  >
+                    Email Address <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <motion.div whileHover={{ scale: 1.01 }}>
+                    <input
+                      id="email"
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value:
+                            /^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)$/i,
+                          message: "Please enter a valid email address",
+                        },
+                        validate: (value) =>
+                          value.endsWith(".com") ||
+                          value.endsWith(".net") ||
+                          "Email must end with .com or .net",
+                      })}
+                      placeholder="you@example.com"
+                      className={`w-full border-2 ${
+                        errors.email
+                          ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                          : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                      } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
+                    />
+                  </motion.div>
+                  {errors.email && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.email.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Phone */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="space-y-1"
+                >
+                  <label
+                    htmlFor="phone"
+                    className="block font-medium text-[#B0B0B0]"
+                  >
+                    Phone Number <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <motion.div whileHover={{ scale: 1.01 }}>
+                    <input
+                      id="phone"
+                      {...register("phone", phoneValidation)} // Already includes onChange
+                      placeholder="1234567890"
+                      maxLength={10}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setValue("phone", value, { shouldValidate: true });
+                      }}
+                      className={`w-full border-2 ${
+                        errors.phone
+                          ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                          : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                      } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
+                    />
+                  </motion.div>
+                  {errors.phone && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.phone.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Address (City Only) */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="space-y-1"
+                >
+                  <label
+                    htmlFor="address"
+                    className="block font-medium text-[#B0B0B0]"
+                  >
+                    Address <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <motion.div whileHover={{ scale: 1.01 }}>
+                    <input
+                      id="address"
+                      {...register("address", {
+                        required: "Address is required",
+                        minLength: {
+                          value: 3,
+                          message: "Address must be at least 3 characters",
+                        },
+                        maxLength: {
+                          value: 100,
+                          message: "Address must be less than 100 characters",
+                        },
+                      })}
+                      placeholder="New York"
+                      className={`w-full border-2 ${
+                        errors.address
+                          ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                          : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                      } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
+                    />
+                  </motion.div>
+                  {errors.address && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.address.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Password */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="space-y-1"
+                >
+                  <label
+                    htmlFor="password"
+                    className="block font-medium text-[#B0B0B0]"
+                  >
+                    Password <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <motion.div whileHover={{ scale: 1.01 }} className="relative">
+                    <input
+                      id="password"
+                      {...register("password", passwordValidation)}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className={`w-full border-2 ${
+                        errors.password
+                          ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                          : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                      } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF] pr-12`}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0] hover:text-[#D4AF37]"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </motion.button>
+                  </motion.div>
+                  {errors.password && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.password.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Confirm Password */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="space-y-1"
+                >
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block font-medium text-[#B0B0B0]"
+                  >
+                    Confirm Password <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <motion.div whileHover={{ scale: 1.01 }} className="relative">
+                    <input
+                      id="confirmPassword"
+                      {...register("confirmPassword", {
+                        required: "Please confirm password",
+                        validate: (value) =>
+                          value === password || "Passwords do not match",
+                      })}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className={`w-full border-2 ${
+                        errors.confirmPassword
+                          ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                          : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                      } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF] pr-12`}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0] hover:text-[#D4AF37]"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </motion.button>
+                  </motion.div>
+                  {errors.confirmPassword && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.confirmPassword.message}
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* Profile Image Upload */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="space-y-1"
+                >
+                  <label className="block font-medium text-[#B0B0B0]">
+                    Profile Picture{" "}
+                    <span className="text-[#B0B0B0]">(Optional)</span>
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <motion.label
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="cursor-pointer"
+                    >
+                      <div className="border-2 border-dashed border-[#333333] hover:border-[#D4AF37] rounded-xl p-2 transition-all group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <div className="text-center py-2 px-4">
+                          <p className="text-sm text-[#B0B0B0] group-hover:text-[#D4AF37] transition-colors">
+                            {preview ? "Change Image" : "Upload Image"}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.label>
+                    {preview && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative"
+                      >
+                        <img
+                          src={preview}
+                          alt="Profile Preview"
+                          className="w-16 h-16 object-cover rounded-full border-2 border-[#D4AF37] shadow-sm"
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          type="button"
+                          onClick={() => {
+                            setPreview(null);
+                            setValue("profileImage", null);
+                          }}
+                          className="absolute -top-2 -right-2 bg-[#FF5E5B] text-white rounded-full p-1 shadow-md hover:bg-[#FF5E5B]/90 transition-colors"
+                          aria-label="Remove image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* CAPTCHA */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="space-y-1"
+                >
+                  <label className="block font-medium text-[#B0B0B0]">
+                    CAPTCHA <span className="text-[#FF5E5B]">*</span>
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-[#0D0D0D] px-4 py-3 rounded-xl text-lg font-mono tracking-wider text-[#D4AF37] flex-1 select-none border-2 border-[#333333]">
+                        {captcha}
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05, rotate: 180 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={handleCaptchaRefresh}
+                        className="p-2.5 bg-[#1A1A1A] text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#252525] rounded-xl transition-all shadow-sm border-2 border-[#333333] cursor-pointer"
+                        aria-label="Refresh CAPTCHA"
+                      >
+                        <RefreshCw size={18} />
+                      </motion.button>
+                    </div>
+                    <motion.div whileHover={{ scale: 1.01 }}>
+                      <input
+                        {...register("captchaInput", {
+                          required: "Please enter the CAPTCHA",
+                        })}
+                        placeholder="Type the CAPTCHA above"
+                        className={`w-full border-2 ${
+                          errors.captchaInput
+                            ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
+                            : "border-[#333333] hover:border-[#D4AF37] focus:border-[#D4AF37]"
+                        } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
+                      />
+                    </motion.div>
+                    {errors.captchaInput && (
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mt-1 text-sm text-[#FF5E5B]"
+                      >
+                        {errors.captchaInput.message}
+                      </motion.p>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Terms and Conditions */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9 }}
+                className="flex items-start mt-4"
+              >
+                <div className="flex items-center h-5">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    className="focus:ring-[#D4AF37] h-4 w-4 text-[#D4AF37] border-[#333333] rounded bg-[#0D0D0D]"
+                    {...register("terms", {
+                      required: "You must accept the terms",
+                    })}
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="terms" className="font-medium text-[#B0B0B0]">
+                    I agree to the{" "}
+                    <a
+                      href="/legal"
+                      className="text-[#D4AF37] hover:text-[#D4AF37]/90"
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="/legal"
+                      className="text-[#D4AF37] hover:text-[#D4AF37]/90"
+                    >
+                      Privacy Policy
+                    </a>
+                  </label>
+                  {errors.terms && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-1 text-sm text-[#FF5E5B]"
+                    >
+                      {errors.terms.message}
                     </motion.p>
                   )}
                 </div>
               </motion.div>
-            </div>
-
-            {/* Terms and Conditions */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.9 }}
-              className="flex items-start mt-4"
-            >
-              <div className="flex items-center h-5">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="focus:ring-[#D4AF37] h-4 w-4 text-[#D4AF37] border-[#333333] rounded bg-[#0D0D0D]"
-                  {...register("terms", {
-                    required: "You must accept the terms",
-                  })}
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="font-medium text-[#B0B0B0]">
-                  I agree to the{" "}
-                  <a
-                    href="/legal"
-                    className="text-[#D4AF37] hover:text-[#D4AF37]/90"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="/legal"
-                    className="text-[#D4AF37] hover:text-[#D4AF37]/90"
-                  >
-                    Privacy Policy
-                  </a>
-                </label>
-                {errors.terms && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-[#FF5E5B]"
-                  >
-                    {errors.terms.message}
-                  </motion.p>
-                )}
-              </div>
-            </motion.div>
               {/* Submit Button */}
               <motion.button
                 initial={{ opacity: 0, y: 10 }}
@@ -842,7 +836,8 @@ const UserRegister = () => {
                 Registration Successful!
               </h3>
               <p className="text-[#B0B0B0]">
-                We've sent a verification link to your email. Please verify your account before logging in.
+                We've sent a verification link to your email. Please verify your
+                account before logging in.
               </p>
               <Link
                 to="/login"
