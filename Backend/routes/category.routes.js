@@ -4,5 +4,5 @@ const auth = require('../middleware/auth')();
 
 router.post('/createCategory',auth.adminAuthenticate, categoryController.createCategory);
 router.get('/getAllCategories',categoryController.getCategory);
-router.get('/categoryWiseEventManagers/:categoryId',auth.authenticate, categoryController.categoryWiseEventManager);
+router.get('/categoryWiseEventManagers/:categoryId', categoryController.categoryWiseEventManager);
 module.exports = router;
