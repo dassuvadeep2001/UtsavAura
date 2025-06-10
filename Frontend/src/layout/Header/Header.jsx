@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  Menu,
   Sparkles,
   ChevronDown,
   ChevronUp,
@@ -18,8 +17,31 @@ import {
   UtensilsCrossed as Utensils,
 } from "lucide-react";
 
-// Reusable Dropdown Component
-const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose, onItemClick }) => {
+// Predefined category icons outside component to prevent recreation
+const CATEGORY_ICONS = {
+  wedding: <Sparkles size={22} className="mt-1 text-[#D4AF37]" />,
+  anniversary: <Sparkles size={22} className="text-[#D4AF37]" />,
+  engagement: <Sparkles size={22} className="text-[#D4AF37]" />,
+  birthday: <Sparkles size={22} className="text-[#D4AF37]" />,
+  "baby shower": <Sparkles size={22} className="text-[#D4AF37]" />,
+  "rice ceremony": <Sparkles size={22} className="text-[#D4AF37]" />,
+  upanayan: <Sparkles size={22} className="text-[#D4AF37]" />,
+  default: <Sparkles size={22} className="text-[#D4AF37]" />,
+};
+
+const getCategoryIcon = (categoryName) => {
+  return CATEGORY_ICONS[categoryName.toLowerCase()] || CATEGORY_ICONS.default;
+};
+
+const DropdownMenu = ({
+  id,
+  label,
+  items,
+  isOpen,
+  onToggle,
+  onClose,
+  onItemClick,
+}) => {
   return (
     <div className="relative">
       <button
@@ -35,16 +57,16 @@ const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose, onItemClick
 
       <div
         id={`${id}-dropdown`}
-        className={`absolute top-10 left-0 bg-[#0D0D0D] border border-[#D4AF37]/20 shadow-xl rounded-lg py-4 w-[28rem] transition-all duration-300 ${
+        className={`absolute top-10 left-0 bg-[#0D0D0D] border border-[#D4AF37]/20 shadow-xl rounded-lg py-4 w-[32rem] transition-all duration-300 ${
           isOpen
             ? "opacity-100 translate-y-0 visible pointer-events-auto"
             : "opacity-0 -translate-y-2 invisible pointer-events-none"
         }`}
       >
-        {items.map(({ to, icon, title, desc,  }, idx) => (
+        {items.map(({ to, icon, title, desc }) => (
           <Link
             to={to}
-            key={idx}
+            key={`${to}-${title}`}
             onClick={onItemClick}
             className="flex items-start gap-4 px-6 py-3 hover:bg-[#1A1A1A] transition-colors duration-200 group"
           >
@@ -68,83 +90,18 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState({
+    isLoggedIn: false,
+    user: null,
+    profileImage: null,
+  });
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        !e.target.closest("#services-dropdown") &&
-        !e.target.closest("#services-btn")
-      ) {
-        setServicesOpen(false);
-      }
-      if (
-        !e.target.closest("#explore-dropdown") &&
-        !e.target.closest("#explore-btn")
-      ) {
-        setExploreOpen(false);
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
-  const closeExploreDropdown = () => {
-    setExploreOpen(false);
-  };
-
-  const servicesItems = [
-    {
-      to: "/services/wedding",
-      icon: <Heart size={22} className="mt-1 text-[#D4AF37]" />,
-      title: "Wedding",
-      desc: "Celebrate your love with a grand and memorable wedding.",
-    },
-    {
-      to: "/services/anniversary",
-      icon: <Calendar size={22} className="text-[#D4AF37]" />,
-      title: "Anniversary",
-      desc: "Rekindle the magic with a beautifully curated celebration.",
-    },
-    {
-      to: "/services/engagement",
-      icon: <Ring size={22} className="text-[#D4AF37]" />,
-      title: "Engagement",
-      desc: "Make your special moment unforgettable with us.",
-    },
-    {
-      to: "/services/birthday",
-      icon: <Gift size={22} className="text-[#D4AF37]" />,
-      title: "Birthday",
-      desc: "Host an extraordinary birthday bash for every age.",
-    },
-    {
-      to: "/services/baby-shower",
-      icon: <Baby size={22} className="text-[#D4AF37]" />,
-      title: "Baby Shower",
-      desc: "Welcome the little one with joy and elegance.",
-    },
-    {
-      to: "/services/rice-ceremony",
-      icon: <Utensils size={22} className="text-[#D4AF37]" />,
-      title: "Rice Ceremony",
-      desc: "A joyful celebration marking the first meal of your child.",
-    },
-    {
-      to: "/services/upanayan",
-      icon: <Users size={22} className="text-[#D4AF37]" />,
-      title: "Upanayan",
-      desc: "Sacred ceremony celebrating tradition and spiritual growth.",
-    },
-  ];
-
-  const exploreItems = [
+  // Static explore items outside component to prevent recreation
+  const EXPLORE_ITEMS = [
     {
       to: "/blog",
       icon: <BookOpen size={22} className="text-[#D4AF37]" />,
@@ -171,6 +128,126 @@ const Navbar = () => {
     },
   ];
 
+  useEffect(() => {
+    const checkAuthState = () => {
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+      const isLoggedIn = !!token;
+
+      let user = null;
+      let profileImage = null;
+
+      if (userStr) {
+        try {
+          user = JSON.parse(userStr);
+          profileImage = user.profileImage || user._doc?.profileImage || null;
+
+          if (profileImage && !profileImage.startsWith("http")) {
+            profileImage = `http://localhost:8001/uploads/${profileImage}`;
+          }
+        } catch (err) {
+          console.error("Error parsing user data:", err);
+        }
+      }
+
+      setAuthState({ isLoggedIn, user, profileImage });
+      setIsLoading(false);
+    };
+
+    checkAuthState();
+
+    const handleStorageChange = (e) => {
+      if (e.key === "token" || e.key === "user") {
+        checkAuthState();
+      }
+    };
+
+    const handleAuthChange = () => checkAuthState();
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authChange", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authChange", handleAuthChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:8001/api/category/getAllCategories"
+        );
+        const data = await res.json();
+        setCategories(data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest("#services-dropdown") &&
+        !e.target.closest("#services-btn")
+      ) {
+        setServicesOpen(false);
+      }
+      if (
+        !e.target.closest("#explore-dropdown") &&
+        !e.target.closest("#explore-btn")
+      ) {
+        setExploreOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleProfileClick = () => {
+    if (!authState.isLoggedIn) return navigate("/login");
+
+    try {
+      switch (authState.user?.role) {
+        case "admin":
+          navigate("/profile");
+          break;
+        case "eventManager":
+          navigate("/profile");
+          break;
+        default:
+          navigate("/profile");
+      }
+    } catch (err) {
+      console.error("Error handling profile click:", err);
+      navigate("/login");
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("authChange"));
+    navigate("/login");
+  };
+
+  // Generate services items only when categories change
+  const servicesItems = categories.map((cat) => ({
+    to: `/services/${cat._id}`,
+    icon: getCategoryIcon(cat.category),
+    title: cat.category,
+    desc: cat.descriptions || "Celebrate your moments with us.",
+  }));
+
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
@@ -180,7 +257,6 @@ const Navbar = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
-        {/* Logo */}
         <Link
           to="/"
           className="flex items-center gap-2 text-[#D4AF37] font-bold text-2xl transition-colors duration-200"
@@ -190,7 +266,6 @@ const Navbar = () => {
           UtsavAura
         </Link>
 
-        {/* Navigation Links */}
         <div
           className="hidden md:flex items-center gap-8 text-[#FFFFFF] font-medium relative text-[18px]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -207,18 +282,25 @@ const Navbar = () => {
             label="Services"
             items={servicesItems}
             isOpen={servicesOpen}
-            onToggle={() => setServicesOpen((prev) => !prev)}
+            onToggle={() => {
+              setServicesOpen((prev) => !prev);
+              setExploreOpen(false);
+            }}
             onClose={() => setExploreOpen(false)}
+            onItemClick={() => setServicesOpen(false)}
           />
 
           <DropdownMenu
             id="explore"
             label="Explore"
-            items={exploreItems}
+            items={EXPLORE_ITEMS}
             isOpen={exploreOpen}
-            onToggle={() => setExploreOpen((prev) => !prev)}
+            onToggle={() => {
+              setExploreOpen((prev) => !prev);
+              setServicesOpen(false);
+            }}
             onClose={() => setServicesOpen(false)}
-            onItemClick={closeExploreDropdown}
+            onItemClick={() => setExploreOpen(false)}
           />
 
           <Link
@@ -228,19 +310,54 @@ const Navbar = () => {
             Contact Us
           </Link>
 
-          <Link
-            to="/login"
-            className="ml-4 px-5 py-2.5 bg-[#FF5E5B] text-white rounded-full hover:bg-[#FF5E5B]/90 transition-colors duration-200 font-medium"
-          >
-            Login or Register
-          </Link>
-        </div>
+          {isLoading ? (
+            <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse"></div>
+          ) : authState.isLoggedIn ? (
+            <div className="relative group">
+              <button
+                onClick={handleProfileClick}
+                className="rounded-full overflow-hidden w-10 h-10 border-2 border-[#D4AF37] hover:brightness-110 transition-all duration-200"
+                aria-label="Profile"
+                title={authState.user?.name || "Profile"}
+              >
+                {authState.profileImage ? (
+                  <img
+                    src={
+                      authState.profileImage.startsWith("http") ||
+                      authState.profileImage.startsWith("blob:")
+                        ? authState.profileImage
+                        : `http://localhost:8001/uploads/${authState.profileImage}`
+                    }
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-[#D4AF37] text-black font-semibold text-lg">
+                    {authState.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
+              </button>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <button className="text-[#FFFFFF] hover:text-[#D4AF37] transition-colors duration-200">
-            <Menu size={24} />
-          </button>
+              <div className="absolute right-0 mt-2 w-48 bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37]"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-[#FF5E5B] text-white px-4 py-2 rounded-full hover:brightness-110 transition-all duration-200 font-semibold"
+            >
+              Login / Register
+            </Link>
+          )}
         </div>
       </div>
     </nav>

@@ -55,11 +55,16 @@ const Login = () => {
       }
 
       const { token, user } = response.data;
+      if (!user || !user.role) {
+        throw new Error("Invalid user data received from server");
+      }
+
       console.log("Login response:", response.data);
-       // Store authentication data
-      localStorage.setItem("token", response.data.token);
+      // Store authentication data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      window.dispatchEvent(new Event("authChange"));
       console.log("Token:", response.data.token);
-      
 
       if (!user || !user.role) {
         throw new Error("Invalid user data received from server");
