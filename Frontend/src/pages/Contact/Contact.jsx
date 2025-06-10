@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useInView } from "react-intersection-observer";
+import { endpoints } from "../../api/api_url";
+import axiosInstance from "../../api/axiosInstance";
 
 const Contact = () => {
   const {
@@ -20,10 +22,25 @@ const Contact = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Form Submitted:", data);
-    reset();
+   try{
+    const response = await axiosInstance.post(endpoints.createQuery, {
+      name: data.name,
+      email: data.email,
+      message: data.message,
+    });
+    if (response.status === 201) {
+      console.log("Message sent successfully:", response.data);
+      alert("Message sent successfully!");
+      reset();
+    } else {
+      alert("Failed to send message. Please try again.");
+    }
+   }
+    catch (error) {
+        alert(
+          error?.response?.data?.message || "Something went wrong. Please try again."
+        );
+      }
   };
 
   // Animation variants
