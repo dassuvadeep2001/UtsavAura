@@ -204,49 +204,49 @@ class UserController {
       });
     }
   }
-async verifyEmail(req, res) {
-  try {
-    const { token } = req.params;
-    const user = await userRepo.findByEmailVerifyToken(token);
+  async verifyEmail(req, res) {
+    try {
+      const { token } = req.params;
+      const user = await userRepo.findByEmailVerifyToken(token);
 
-    if (!user) {
-      return res.status(400).json({
-        status: 400,
-        message: "Invalid or expired verification link",
-        data: {},
-      });
-    }
+      if (!user) {
+        return res.status(400).json({
+          status: 400,
+          message: "Invalid or expired verification link",
+          data: {},
+        });
+      }
 
-    // Check if token is expired (5 minutes = 300000 ms)
-    const now = Date.now();
-    const createdAt = user.emailVerifyTokenCreatedAt
-      ? new Date(user.emailVerifyTokenCreatedAt).getTime()
-      : 0;
-    if (!createdAt || now - createdAt > 5 * 60 * 1000) {
-      // Expired: clear token
+      // Check if token is expired (5 minutes = 300000 ms)
+      const now = Date.now();
+      const createdAt = user.emailVerifyTokenCreatedAt
+        ? new Date(user.emailVerifyTokenCreatedAt).getTime()
+        : 0;
+      if (!createdAt || now - createdAt > 5 * 60 * 1000) {
+        // Expired: clear token
+        await userRepo.updateById(user._id, {
+          emailVerifyToken: null,
+          emailVerifyTokenCreatedAt: null,
+        });
+        return res.status(400).json({
+          status: 400,
+          message: "Verification link expired.",
+        });
+      }
+
       await userRepo.updateById(user._id, {
-        emailVerifyToken: null,
-        emailVerifyTokenCreatedAt: null,
+        isVerified: true,
       });
-      return res.status(400).json({
-        status: 400,
-        message: "Verification link expired.",
+      return res.json({
+        status: 200,
+        message: "Email verified successfully",
       });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ status: 500, message: error.message, data: {} });
     }
-
-    await userRepo.updateById(user._id, {
-      isVerified: true
-    });
-    return res.json({
-      status: 200,
-      message: "Email verified successfully",
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: 500, message: error.message, data: {} });
   }
-}
 
   async forgetPassword(req, res) {
     try {
@@ -339,121 +339,120 @@ async verifyEmail(req, res) {
   }
 
   async profile(req, res) {
-  try {
-    const user = req.user;
+    try {
+      const user = req.user;
 
-    if (!user) {
-      return res.json({
-        status: 400,
-        message: "User not found",
-        data: {},
-      });
-    }
-
-    // For normal user or admin
-    if (user.role === "user" || user.role === "admin") {
-      const userData = await userRepo.getPublicProfileById(user._id);
-      return res.json({
-        status: 200,
-        message: "User fetched successfully",
-        data: userData,
-      });
-    }
-
-    // For event manager
-if (user.role === "eventManager") {
-  const result = await eventManagerModel.aggregate([
-    { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
-    {
-      $lookup: {
-        from: "users",
-        localField: "eventManagerId",
-        foreignField: "_id",
-        as: "userDetails"
+      if (!user) {
+        return res.json({
+          status: 400,
+          message: "User not found",
+          data: {},
+        });
       }
-    },
-    { $unwind: "$userDetails" },
-    {
-      $lookup: {
-        from: "reviews",
-        let: { eventManagerId: "$eventManagerId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] }
-            }
-          },
+
+      // For normal user or admin
+      if (user.role === "user" || user.role === "admin") {
+        const userData = await userRepo.getPublicProfileById(user._id);
+        return res.json({
+          status: 200,
+          message: "User fetched successfully",
+          data: userData,
+        });
+      }
+
+      // For event manager
+      if (user.role === "eventManager") {
+        const result = await eventManagerModel.aggregate([
+          { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
           {
             $lookup: {
               from: "users",
-              localField: "userId",
+              localField: "eventManagerId",
               foreignField: "_id",
-              as: "reviewer"
-            }
+              as: "userDetails",
+            },
           },
-          { $unwind: "$reviewer" },
+          { $unwind: "$userDetails" },
+          {
+            $lookup: {
+              from: "reviews",
+              let: { eventManagerId: "$eventManagerId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "reviewer",
+                  },
+                },
+                { $unwind: "$reviewer" },
+                {
+                  $project: {
+                    _id: 1,
+                    star: "$rating",
+                    review: 1,
+                    createdAt: 1,
+                    userId: 1,
+                    reviewerName: "$reviewer.name",
+                    reviewerEmail: "$reviewer.email",
+                  },
+                },
+              ],
+              as: "reviews",
+            },
+          },
           {
             $project: {
-              _id: 1,
-              star: "$rating",
-              review: 1,
-              createdAt: 1,
-              userId: 1,
-              reviewerName: "$reviewer.name",
-              reviewerEmail: "$reviewer.email"
-            }
-          }
-        ],
-        as: "reviews"
+              _id: 0,
+              name: "$userDetails.name",
+              email: "$userDetails.email",
+              phone: "$userDetails.phone",
+              address: "$userDetails.address",
+              profileImage: "$userDetails.profileImage",
+              gender: 1,
+              age: 1,
+              service: 1,
+              description: 1,
+              previousWorkImages: 1,
+              role: "$userDetails.role",
+              reviews: 1, // Now includes reviewer name and email
+            },
+          },
+        ]);
+
+        if (!result.length) {
+          return res.status(404).json({
+            status: 404,
+            message: "Event Manager profile not found",
+            data: {},
+          });
+        }
+
+        return res.json({
+          status: 200,
+          message: "Event Manager profile fetched successfully",
+          data: result[0],
+        });
       }
-    },
-    {
-      $project: {
-        _id: 0,
-        name: "$userDetails.name",
-        email: "$userDetails.email",
-        phone: "$userDetails.phone",
-        address: "$userDetails.address",
-        profileImage: "$userDetails.profileImage",
-        gender: 1,
-        age: 1,
-        service: 1,
-        description: 1,
-        previousWorkImages: 1,
-        role: "$userDetails.role",
-        reviews: 1 // Now includes reviewer name and email
-      }
+
+      // If role is not recognized
+      return res.status(400).json({
+        status: 400,
+        message: "Invalid user role",
+        data: {},
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ status: 500, message: error.message, data: {} });
     }
-  ]);
-
-  if (!result.length) {
-    return res.status(404).json({
-      status: 404,
-      message: "Event Manager profile not found",
-      data: {}
-    });
   }
-
-  return res.json({
-    status: 200,
-    message: "Event Manager profile fetched successfully",
-    data: result[0]
-  });
-}
-
-    // If role is not recognized
-    return res.status(400).json({
-      status: 400,
-      message: "Invalid user role",
-      data: {}
-    });
-
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: 500, message: error.message, data: {} });
-  }
-}
   async updateProfile(req, res) {
     try {
       const user = req.user;
@@ -522,7 +521,10 @@ if (user.role === "eventManager") {
   }
   async getAllUsers(req, res) {
     try {
-      const users = await userModel.find({ isDeleted: false , role: { $ne: "admin" }});
+      const users = await userModel.find({
+        isDeleted: false,
+        role: { $ne: "admin" },
+      });
       return res.json({
         status: 200,
         message: "Users fetched successfully",
@@ -532,6 +534,36 @@ if (user.role === "eventManager") {
       return res
         .status(500)
         .json({ status: 500, message: error.message, data: {} });
+    }
+  }
+  async getUserByEmail(req, res) {
+    try {
+      const { email } = req.query;
+
+      if (!email) {
+        return res.status(400).json({
+          status: 400,
+          message: "Email query parameter is required",
+          exists: false,
+        });
+      }
+
+      const user = await userModel.findOne({
+        email: email.toLowerCase(),
+        isDeleted: false,
+      });
+
+      return res.json({
+        status: 200,
+        exists: !!user,
+        message: user ? "Email already registered" : "Email is available",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Internal server error",
+        exists: false,
+      });
     }
   }
 }
