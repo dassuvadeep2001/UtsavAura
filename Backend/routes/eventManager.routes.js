@@ -21,6 +21,6 @@ router.put(
   ]),
   eventManagerController.updateEventManager
 );
-router.get('/getEventManager/:id', auth.authenticate, eventManagerController.getEventManagerFullDetails);
+router.get('/getEventManager/:id', eventManagerController.getEventManagerFullDetails);
 
 module.exports = router;
