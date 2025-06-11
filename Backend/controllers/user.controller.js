@@ -422,6 +422,7 @@ class UserController {
               previousWorkImages: 1,
               role: "$userDetails.role",
               reviews: 1, // Now includes reviewer name and email
+              isVerified: "$userDetails.isVerified",
             },
           },
         ]);

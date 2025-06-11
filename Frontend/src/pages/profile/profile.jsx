@@ -288,6 +288,15 @@ const Profile = () => {
                 <div className="md:w-1/2">
                   <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4 text-start">Contact Info</h2>
                   <div className='h-px w-full bg-[#444444] opacity-30 mb-5'></div>
+                   {user.isVerified ? (
+  <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
+    <CheckCircle className="w-4 h-4 mr-2" /> Verified
+  </p>
+) : (
+  <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
+    <Clock className="w-4 h-4 mr-2" /> Not Verified
+  </p>
+)}
                   <p className="text-[#B0B0B0] mb-2 flex items-center text-lg">
                     <Mail size={22} className="text-[#D4AF37] mr-2" />
                     {user.email}
@@ -343,6 +352,15 @@ const Profile = () => {
                   >
                     <h3 className="text-2xl font-semibold text-[#D4AF37] mb-4">Profile Overview</h3>
                     <div className="w-full h-px bg-[#444444] opacity-30 mb-4"></div>
+                     {user.isVerified ? (
+  <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
+    <CheckCircle className="w-4 h-4 mr-2" /> Verified
+  </p>
+) : (
+  <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
+    <Clock className="w-4 h-4 mr-2" /> Not Verified
+  </p>
+)}
                     <p className="text-[#B0B0B0] mb-4 whitespace-pre-wrap text-start">{user.description}</p>
                     <div className="space-y-3 text-[#B0B0B0] text-base sm:text-lg">
                       <p className="flex items-center space-x-2">

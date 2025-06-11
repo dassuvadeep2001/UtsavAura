@@ -19,13 +19,12 @@ import {
   FileText,
   ChevronDown,
   ClipboardList,
-  Star,
+  Check,
 } from "lucide-react";
 import { Controller } from "react-hook-form";
-import { toast } from "react-toastify";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function EventManagerRegister() {
   const methods = useForm({
@@ -46,6 +45,7 @@ export function EventManagerRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const navigate = useNavigate();
 
   const steps = [
@@ -198,13 +198,9 @@ export function EventManagerRegister() {
       if (response.data.status !== 201) {
         throw new Error(response.data.message || "Registration failed");
       }
-
-      toast.success(
-        "🎉 Registration successful! Your account is under review. We'll notify you once approved."
-      );
+      setShowSuccessMessage(true);
       methods.reset();
       setPreview(null);
-      navigate("/login");
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
 
@@ -418,19 +414,7 @@ export function EventManagerRegister() {
           whileHover={{ scale: 1.005 }}
           className="max-w-4xl mx-auto bg-[#1A1A1A] p-10 rounded-2xl shadow-2xl border-1 border-[#D4AF37]/70 transition-all"
         >
-          <FormProvider {...methods}>
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="space-y-8"
-            >
-              {/* Step Header */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="mb-8"
-              >
-                {/* New Header Section */}
+          {/* New Header Section */}
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -449,6 +433,19 @@ export function EventManagerRegister() {
                     organizers.
                   </p>
                 </motion.div>
+          <FormProvider {...methods}>
+            {!showSuccessMessage ? (
+            <form
+              onSubmit={methods.handleSubmit(onSubmit)}
+              className="space-y-8"
+            >
+              {/* Step Header */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="mb-8"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-[#D4AF37]">
@@ -482,7 +479,7 @@ export function EventManagerRegister() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Name Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className="font-medium text-[#B0B0B0] flex items-center">
                       <User size={16} className="mr-2" />
                       Full Name <span className="text-[#FF5E5B] ml-1">*</span>
                     </label>
@@ -496,11 +493,7 @@ export function EventManagerRegister() {
                           },
                         })}
                         placeholder="John Doe"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
-                      />
-                      <User
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
                       />
                     </div>
                     {renderValidationMessage("name")}
@@ -508,7 +501,7 @@ export function EventManagerRegister() {
 
                   {/* Email Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <Mail size={16} className="mr-2" />
                       Email <span className="text-[#FF5E5B] ml-1">*</span>
                     </label>
@@ -541,11 +534,7 @@ export function EventManagerRegister() {
 
                         type="email"
                         placeholder="you@example.com"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
-                      />
-                      <Mail
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
                       />
                     </div>
                     {renderValidationMessage("email")}
@@ -553,7 +542,7 @@ export function EventManagerRegister() {
 
                   {/* Phone Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <Phone size={16} className="mr-2" />
                       Phone Number{" "}
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -580,7 +569,7 @@ export function EventManagerRegister() {
                           },
                         })}
                         placeholder="1234567890"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, "");
                           const formatted = value.slice(0, 10);
@@ -589,17 +578,13 @@ export function EventManagerRegister() {
                           });
                         }}
                       />
-                      <Phone
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
-                      />
                     </div>
                     {renderValidationMessage("phone")}
                   </motion.div>
 
                   {/* Address Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <MapPin size={16} className="mr-2" />
                       Address <span className="text-[#FF5E5B] ml-1">*</span>
                     </label>
@@ -613,11 +598,7 @@ export function EventManagerRegister() {
                           },
                         })}
                         placeholder="Street, City, State"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
-                      />
-                      <MapPin
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
                       />
                     </div>
                     {renderValidationMessage("address")}
@@ -700,7 +681,7 @@ export function EventManagerRegister() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Password Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <Lock size={16} className="mr-2" />
                       Password <span className="text-[#FF5E5B] ml-1">*</span>
                     </label>
@@ -720,11 +701,7 @@ export function EventManagerRegister() {
                         })}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200 pr-12"
-                      />
-                      <Lock
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200 pr-12"
                       />
                       <button
                         type="button"
@@ -784,7 +761,7 @@ export function EventManagerRegister() {
 
                   {/* Confirm Password Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <Lock size={16} className="mr-2" />
                       Confirm Password{" "}
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -799,11 +776,7 @@ export function EventManagerRegister() {
                         })}
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200 pr-12"
-                      />
-                      <Lock
-                        size={16}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                        className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200 pr-12"
                       />
                       <button
                         type="button"
@@ -830,7 +803,7 @@ export function EventManagerRegister() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Gender Field */}
                     <motion.div className="space-y-2">
-                      <label className="block font-medium text-[#B0B0B0] flex items-center">
+                      <label className=" font-medium text-[#B0B0B0] flex items-center">
                         <VenetianMask size={16} className="mr-2" />
                         Gender <span className="text-[#FF5E5B] ml-1">*</span>
                       </label>
@@ -839,17 +812,13 @@ export function EventManagerRegister() {
                           {...methods.register("gender", {
                             required: "Gender is required",
                           })}
-                          className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white appearance-none transition-all duration-200"
+                          className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white appearance-none transition-all duration-200"
                         >
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
                           <option value="Other">Other</option>
                         </select>
-                        <VenetianMask
-                          size={16}
-                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
-                        />
                         <ChevronDown
                           size={16}
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
@@ -860,7 +829,7 @@ export function EventManagerRegister() {
 
                     {/* Age Field */}
                     <motion.div className="space-y-2">
-                      <label className="block font-medium text-[#B0B0B0] flex items-center">
+                      <label className="font-medium text-[#B0B0B0] flex items-center">
                         <Calendar size={16} className="mr-2" />
                         Age <span className="text-[#FF5E5B] ml-1">*</span>
                       </label>
@@ -880,11 +849,7 @@ export function EventManagerRegister() {
                           })}
                           type="number"
                           placeholder="Age"
-                          className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 pl-10 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
-                        />
-                        <Calendar
-                          size={16}
-                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B0B0]"
+                          className="w-full border-2 border-[#333333] hover:border-[#D4AF37]/50 focus:border-[#D4AF37] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none bg-[#0D0D0D] text-white transition-all duration-200"
                         />
                       </div>
                       {renderValidationMessage("age")}
@@ -893,7 +858,7 @@ export function EventManagerRegister() {
 
                   {/* Categories Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <FileText size={16} className="mr-2" />
                       Categories Provided{" "}
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -931,7 +896,7 @@ export function EventManagerRegister() {
 
                   {/* Services Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <FileText size={16} className="mr-2" />
                       Services Provided{" "}
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -961,7 +926,7 @@ export function EventManagerRegister() {
 
                   {/* Description Field */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className=" font-medium text-[#B0B0B0] flex items-center">
                       <FileText size={16} className="mr-2" />
                       Description of Services{" "}
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -987,7 +952,7 @@ export function EventManagerRegister() {
                   </motion.div>
                   {/* Previous Work Images */}
                   <motion.div className="space-y-2">
-                    <label className="block font-medium text-[#B0B0B0] flex items-center">
+                    <label className="font-medium text-[#B0B0B0] flex items-center">
                       <Camera size={16} className="mr-2" />
                       Upload Previous Work (Images)
                       <span className="text-[#FF5E5B] ml-1">*</span>
@@ -1210,7 +1175,7 @@ export function EventManagerRegister() {
               <motion.div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 border-t border-[#333333]">
                 {step > 0 ? (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.0 }}
                     whileTap={{ scale: 0.98 }}
                     type="button"
                     onClick={onBack}
@@ -1223,17 +1188,17 @@ export function EventManagerRegister() {
                 )}
                 {step < steps.length - 1 ? (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.0 }}
                     whileTap={{ scale: 0.98 }}
                     type="button"
                     onClick={onNext}
-                    className="px-8 py-3 bg-gradient-to-r from-[#D4AF37] to-[#F1C84C] hover:from-[#C29F32] hover:to-[#DDB740] text-black font-medium rounded-xl flex items-center justify-center gap-2 transition-all duration-200 w-full sm:w-auto"
+                    className="px-8 py-3 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] hover:from-[#FF5E5B] hover:to-[#D4AF37] text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all duration-200 w-full sm:w-auto"
                   >
                     Continue <ArrowRight size={18} />
                   </motion.button>
                 ) : (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.0 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     className="px-8 py-3 bg-gradient-to-r from-[#FF5E5B] to-[#FF8E8C] hover:from-[#E85652] hover:to-[#FF7E7B] text-white font-medium rounded-xl flex items-center justify-center transition-all duration-200 w-full sm:w-auto ml-auto"
@@ -1243,6 +1208,29 @@ export function EventManagerRegister() {
                 )}
               </motion.div>
             </form>
+            ) : (
+              <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-center space-y-4 p-10 bg-green-500/10 border border-green-500/30 rounded-xl mt-16 mb-16"
+            >
+              <Check size={48} className="mx-auto text-green-400" />
+              <h3 className="text-xl font-bold text-white">
+                Registration Successful!
+              </h3>
+              <p className="text-[#B0B0B0]">
+                We've sent a verification link to your email. Please verify your
+                account before logging in.
+              </p>
+              <Link
+                to="/login"
+                className="inline-block mt-4 px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white rounded-md hover:brightness-110 transition-colors"
+              >
+                Go to Login
+              </Link>
+            </motion.div>
+          )}
           </FormProvider>
         </motion.div>
       </motion.div>

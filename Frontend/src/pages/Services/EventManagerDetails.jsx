@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { Star } from "lucide-react"; // Lucid icon
 
 const EventManagerDetails = () => {
   const { id } = useParams();
@@ -10,12 +11,14 @@ const EventManagerDetails = () => {
   const [error, setError] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [rating, setRating] = useState(1); // Local state for stars
 
   // React Hook Form setup
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -23,6 +26,11 @@ const EventManagerDetails = () => {
       reviewText: "",
     },
   });
+
+  // Sync local state with react-hook-form
+  useEffect(() => {
+    setValue("rating", rating);
+  }, [rating, setValue]);
 
   useEffect(() => {
     const fetchEventManagerDetails = async () => {
@@ -38,13 +46,13 @@ const EventManagerDetails = () => {
         }
       } catch (err) {
         setError(
-          err.response?.data?.message || "Failed to fetch event manager details"
+          err.response?.data?.message ||
+            "Failed to fetch event manager details"
         );
       } finally {
         setLoading(false);
       }
     };
-
     fetchEventManagerDetails();
   }, [id]);
 
@@ -53,11 +61,9 @@ const EventManagerDetails = () => {
     try {
       setSubmitting(true);
       const token = localStorage.getItem("token");
-
       if (!token) {
         throw new Error("You need to be logged in to submit a review");
       }
-
       const response = await axios.post(
         `http://localhost:8001/api/review/addReview/${id}`,
         {
@@ -71,7 +77,6 @@ const EventManagerDetails = () => {
           },
         }
       );
-
       if (response.data.status === 200) {
         // Update UI optimistically
         setEventManager((prev) => ({
@@ -81,8 +86,8 @@ const EventManagerDetails = () => {
             (prev.reviewCount + 1),
           reviewCount: prev.reviewCount + 1,
         }));
-
         reset();
+        setRating(1);
         setShowReviewForm(false);
       }
     } catch (err) {
@@ -99,11 +104,20 @@ const EventManagerDetails = () => {
 
   if (loading)
     return (
-      <div className="text-white p-10">Loading event manager details...</div>
+      <div className="text-white p-10">
+        Loading event manager details...
+      </div>
     );
-  if (error) return <div className="text-red-500 p-10">Error: {error}</div>;
+  if (error)
+    return (
+      <div className="text-red-500 p-10">Error: {error}</div>
+    );
   if (!eventManager)
-    return <div className="text-white p-10">No event manager found</div>;
+    return (
+      <div className="text-white p-10">
+        No event manager found
+      </div>
+    );
 
   const {
     name = "N/A",
@@ -127,10 +141,9 @@ const EventManagerDetails = () => {
   );
 
   return (
-    <div className="bg-[#0D0D0D]   text-white min-h-screen">
+    <div className="bg-gradient-to-t from-[#000000] via-[#000000] to-[#94720049] text-white min-h-screen pt-5">
       {/* Collage Header */}
-      <div className="relative w-5/6 mx-auto p-4 rounded-lg shadow-lg">
-        {/* Collage Grid – Only first 8 images, consistent sizing */}
+      <div className="relative w-5/6 mx-auto p-4 rounded-lg">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {previousWorkImages.slice(0, 8).map((img, idx) => (
             <div
@@ -140,7 +153,7 @@ const EventManagerDetails = () => {
               <img
                 src={`http://localhost:8001/uploads/${img}`}
                 alt={`Work ${idx + 1}`}
-                className="w-full h-full object-cover object-center transition duration-300  rounded-md"
+                className="w-full h-full object-cover object-center transition duration-300 rounded-md"
               />
             </div>
           ))}
@@ -148,12 +161,12 @@ const EventManagerDetails = () => {
 
         {/* Floating Profile Image */}
         <div className="absolute left-15 bottom-[-80px] z-20">
-          <div className="w-50 h-50 rounded-full border-4 border-[#D4AF37] bg-black p-1 shadow-xl">
+          <div className="w-50 h-50 rounded-full border-4 border-[#D4AF37]">
             <img
               src={
                 profileImage
                   ? `http://localhost:8001/uploads/${profileImage}`
-                  : "https://via.placeholder.com/150"
+                  : "https://via.placeholder.com/150" 
               }
               alt={name}
               className="w-full h-full object-cover object-center rounded-full"
@@ -162,34 +175,37 @@ const EventManagerDetails = () => {
         </div>
       </div>
 
-      <div className="min-h-screen bg-[#0D0D0D] py-10 px-6">
+      <div className="min-h-screen bg-gradient-to-b from-[#000000] via-[#3e0000] to-[#000000] py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
           {/* Left Side: Gallery & Reviews */}
-           <div className="md:w-1/2 bg-[#1A1A1A] p-6 py-10 rounded-xl shadow-xl border border-white/10 space-y-6">
-            <h1 className="text-4xl font-bold text-center text-[#D4AF37]">
+          <div className="md:w-1/2 bg-[#0D0D0D] p-6 py-10 rounded-xl shadow-xl border border-white/10 space-y-6">
+            <h1 className="text-4xl font-semibold text-center text-[#D4AF37] mb-4">
               {name}
             </h1>
-
+            <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
             <section>
-              <h2 className="text-2xl font-semibold mb-2 text-white">About</h2>
-              <p className="text-gray-300 leading-relaxed">{description}</p>
+              <p className="text-gray-300 leading-relaxed text-justify">
+                {description}
+              </p>
             </section>
-
             <div className="grid grid-cols-2 gap-4">
               <DetailItem label="Age" value={age} />
               <DetailItem label="Gender" value={gender} />
               <DetailItem label="Location" value={address} />
               <DetailItem label="Phone" value={phone} />
               <DetailItem label="Email" value={email} />
-              <DetailItem label="Rating" value={`${avgReview.toFixed(1)}/5`} />
+              <DetailItem
+                label="Rating"
+                value={`${avgReview.toFixed(1)}/5`}
+              />
             </div>
-
             <section>
-              <h3 className="text-xl font-semibold mb-4 text-white">
+              <h3 className="text-xl font-semibold mb-4 text-[#FF5E5B]">
                 Services Offered
               </h3>
+              <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
               {service.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {service.map((item, index) => (
                     <div
                       key={index}
@@ -208,14 +224,15 @@ const EventManagerDetails = () => {
               )}
             </section>
           </div>
-         
-          {/* Right - Details */}
+
+          {/* Right Side: Previous Work & Review Form */}
           <div className="md:w-1/2 space-y-6">
             {/* Previous Work Section */}
             <div className="bg-[#1A1A1A] p-6 rounded-xl shadow-xl border border-white/10">
-              <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">
+              <h2 className="text-xl font-semibold text-[#FF5E5B] mb-4">
                 Previous Work
               </h2>
+              <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
               {previousWorkImages.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {previousWorkImages.map((image, index) => (
@@ -223,7 +240,7 @@ const EventManagerDetails = () => {
                       key={index}
                       src={`http://localhost:8001/uploads/${image}`}
                       alt={`Previous work ${index + 1}`}
-                      className="rounded-lg object-cover w-full h-32 shadow-md"
+                      className="rounded-lg object-cover w-full h-35 shadow-md"
                     />
                   ))}
                 </div>
@@ -234,14 +251,15 @@ const EventManagerDetails = () => {
 
             {/* Leave a Review Section */}
             <div className="bg-[#1A1A1A] p-6 rounded-xl shadow-xl border border-white/10">
-              <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">
-                Loved our services? Leave a Review!
+              <h2 className="text-2xl font-semibold text-white mb-4">
+                Loved our{" "}
+                <span className="text-[#D4AF37]">Services</span>? Leave a{" "}
+                <span className="text-[#FF5E5B]">Review</span>!
               </h2>
-
               {!showReviewForm ? (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="bg-[#D4AF37] text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition"
+                  className="bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#FF5E5B] text-white px-6 py-2 rounded-lg font-semibold transition"
                 >
                   Add Review
                 </button>
@@ -250,20 +268,38 @@ const EventManagerDetails = () => {
                   onSubmit={handleSubmit(onSubmitReview)}
                   className="space-y-4"
                 >
+                  {/* Star Rating Using Lucid Icon */}
                   <div>
                     <label className="block text-sm text-gray-300 mb-1">
                       Rating (1–5)
                     </label>
+                    <div className="flex items-center space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          className="focus:outline-none"
+                        >
+                          <Star
+                            size={24}
+                            fill={star <= rating ? "#FACC15" : "none"}
+                            stroke={star <= rating ? "#FACC15" : "#6B7280"}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    {/* Hidden Input for react-hook-form validation */}
                     <input
                       type="number"
-                      min="1"
-                      max="5"
                       {...register("rating", {
                         required: "Rating is required",
                         min: { value: 1, message: "Minimum rating is 1" },
                         max: { value: 5, message: "Maximum rating is 5" },
                       })}
-                      className="w-full bg-[#0D0D0D] border border-white/20 rounded-lg p-2 text-white"
+                      value={rating}
+                      onChange={() => {}}
+                      className="hidden"
                     />
                     {errors.rating && (
                       <p className="text-red-500 text-sm mt-1">
@@ -272,6 +308,7 @@ const EventManagerDetails = () => {
                     )}
                   </div>
 
+                  {/* Review Text */}
                   <div>
                     <label className="block text-sm text-gray-300 mb-1">
                       Your Review
@@ -282,11 +319,13 @@ const EventManagerDetails = () => {
                         required: "Review text is required",
                         minLength: {
                           value: 3,
-                          message: "Review must be at least 3 characters long",
+                          message:
+                            "Review must be at least 3 characters long",
                         },
                         maxLength: {
                           value: 100,
-                          message: "Review must not exceed 100 characters",
+                          message:
+                            "Review must not exceed 100 characters",
                         },
                       })}
                       placeholder="Write your feedback here..."
@@ -299,11 +338,12 @@ const EventManagerDetails = () => {
                     )}
                   </div>
 
+                  {/* Submit Buttons */}
                   <div className="flex gap-3">
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="bg-[#D4AF37] text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition disabled:opacity-50"
+                      className="bg-gradient-to-r from-[#FF5E5B] to-[#ff3936] text-white px-6 py-2 rounded-lg font-semibold hover:bg-gradient-to-r hover:from-[#ff3936] hover:to-[#FF5E5B] transition disabled:opacity-50"
                     >
                       {submitting ? "Submitting..." : "Submit Review"}
                     </button>
@@ -311,6 +351,7 @@ const EventManagerDetails = () => {
                       type="button"
                       onClick={() => {
                         reset();
+                        setRating(1);
                         setShowReviewForm(false);
                       }}
                       className="bg-gray-700 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition"
@@ -322,7 +363,6 @@ const EventManagerDetails = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

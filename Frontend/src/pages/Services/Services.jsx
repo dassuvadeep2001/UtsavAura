@@ -154,9 +154,9 @@ const Services = () => {
           content.title = "Celebrate Every Birthday in Style";
           content.description =
             "Whether it's a toddler's first or a grand 60th bash, our birthday events are vibrant, themed, and full of joy.";
-          content.image = "/src/assets/images/birthday-banner.jpg";
-          content.accentColor = "#FF5E5B";
-          content.gradient = "from-[#FF5E5B] to-[#FF9E7D]";
+          content.image = "/src/assets/images/birthday-banner1.jpg";
+          content.accentColor = "#D4AF37";
+          content.gradient = "from-[#D4AF37] to-[#FFD700]";
           content.sectionContent = {
             title: "Birthday Celebrations That Shine",
             subtitle: "Marking Milestones with Magic",
@@ -166,7 +166,7 @@ const Services = () => {
               "Whether you want an intimate gathering or a grand celebration, we'll bring your vision to life with creative themes, exciting entertainment, and unforgettable moments.",
             coreValues: [
               {
-                icon: <Sparkles className="text-[#FF5E5B]" size={20} />,
+                icon: <Sparkles className="text-[#D4AF37]" size={20} />,
                 title: "Joy",
                 desc: "We design celebrations that spark happiness and create lasting memories",
               },
@@ -176,7 +176,7 @@ const Services = () => {
                 desc: "Our parties are filled with vibrant energy from start to finish",
               },
               {
-                icon: <User className="text-[#FF5E5B]" size={20} />,
+                icon: <User className="text-[#D4AF37]" size={20} />,
                 title: "Personal Touch",
                 desc: "Every celebration reflects the personality of the guest of honor",
               },
@@ -192,8 +192,8 @@ const Services = () => {
           content.description =
             "Mark milestones of love with candle-lit dinners, elegant décor, and personal touches that say 'Forever.'";
           content.image = "/src/assets/images/anniversary-banner.jpg";
-          content.accentColor = "#9B59B6";
-          content.gradient = "from-[#9B59B6] to-[#E74C3C]";
+      content.accentColor = "#FF5E5B";
+          content.gradient = "from-[#FF5E5B] to-[#FF9E7D]";
           content.sectionContent = {
             title: "Celebrating Love That Lasts",
             subtitle: "Honoring Your Journey Together",
@@ -203,17 +203,17 @@ const Services = () => {
               "From intimate vow renewals to grand anniversary galas, we design events that reflect your relationship's depth and the love you continue to share.",
             coreValues: [
               {
-                icon: <Heart className="text-[#9B59B6]" size={20} />,
+                icon: <Heart className="text-[#D4AF37]" size={20} />,
                 title: "Sentiment",
                 desc: "We craft events that honor your shared history and love story",
               },
               {
-                icon: <Sparkles className="text-[#9B59B6]" size={20} />,
+                icon: <Sparkles className="text-[#FF5E5B]" size={20} />,
                 title: "Elegance",
                 desc: "Sophisticated designs that match the significance of the occasion",
               },
               {
-                icon: <CalendarDays className="text-[#9B59B6]" size={20} />,
+                icon: <CalendarDays className="text-[#D4AF37]" size={20} />,
                 title: "Tradition",
                 desc: "Honoring timeless traditions while creating new memories",
               },
@@ -229,8 +229,8 @@ const Services = () => {
           content.description =
             "From dreamy proposals to elegant ring ceremonies, we create magical beginnings for lifelong journeys.";
           content.image = "/src/assets/images/engagement-banner.jpg";
-          content.accentColor = "#3498DB";
-          content.gradient = "from-[#3498DB] to-[#2ECC71]";
+content.accentColor = "#FF5E5B";
+          content.gradient = "from-[#FF5E5B] to-[#FF9E7D]";
           content.sectionContent = {
             title: "The Art of the Perfect Engagement",
             subtitle: "Where Forever Begins",
@@ -240,17 +240,17 @@ const Services = () => {
               "Whether you envision an intimate gathering or a lavish party, we'll design an event that captures the magic of this special moment while reflecting your personal style.",
             coreValues: [
               {
-                icon: <Sparkles className="text-[#3498DB]" size={20} />,
+                icon: <Sparkles className="text-[#D4AF37]" size={20} />,
                 title: "Romance",
                 desc: "We create moments filled with love and heartfelt emotion",
               },
               {
-                icon: <Heart className="text-[#3498DB]" size={20} />,
+                icon: <Heart className="text-[#FF5E5B]" size={20} />,
                 title: "Intimacy",
                 desc: "Designing celebrations that feel personal and meaningful",
               },
               {
-                icon: <Zap className="text-[#3498DB]" size={20} />,
+                icon: <Zap className="text-[#D4AF37]" size={20} />,
                 title: "Surprise",
                 desc: "Specializing in magical moments that take your breath away",
               },
@@ -266,8 +266,8 @@ const Services = () => {
           content.description =
             "Celebrate this precious moment with soulful traditions, cultural décor, and heartwarming rituals.";
           content.image = "/src/assets/images/riceceremony-banner.jpg";
-          content.accentColor = "#2ECC71";
-          content.gradient = "from-[#2ECC71] to-[#F1C40F]";
+  content.accentColor = "#D4AF37";
+          content.gradient = "from-[#D4AF37] to-[#FFD700]";
           content.sectionContent = {
             title: "Celebrating New Beginnings",
             subtitle: "Honoring Tradition, Creating Memories",
@@ -277,17 +277,17 @@ const Services = () => {
               "From traditional setups to modern interpretations, we design ceremonies that respect cultural significance while creating a joyful atmosphere for all guests.",
             coreValues: [
               {
-                icon: <Heart className="text-[#2ECC71]" size={20} />,
+                icon: <Heart className="text-[#D4AF37]" size={20} />,
                 title: "Tradition",
                 desc: "Respecting and honoring cultural rituals and customs",
               },
               {
-                icon: <Sparkles className="text-[#2ECC71]" size={20} />,
+                icon: <Sparkles className="text-[#FF5E5B]" size={20} />,
                 title: "Joy",
                 desc: "Creating celebrations filled with happiness and family bonding",
               },
               {
-                icon: <User className="text-[#2ECC71]" size={20} />,
+                icon: <User className="text-[#D4AF37]" size={20} />,
                 title: "Family",
                 desc: "Designing events that bring generations together in celebration",
               },
@@ -303,8 +303,8 @@ const Services = () => {
           content.description =
             "We make baby showers a bundle of joy with soft hues, themed décor, and heart-touching moments.";
           content.image = "/src/assets/images/babyshower-banner.jpg";
-          content.accentColor = "#F39C12";
-          content.gradient = "from-[#F39C12] to-[#E91E63]";
+content.accentColor = "#FF5E5B";
+          content.gradient = "from-[#FF5E5B] to-[#FF9E7D]";
           content.sectionContent = {
             title: "Celebrating New Life",
             subtitle: "Showering Mom & Baby with Love",
@@ -314,17 +314,17 @@ const Services = () => {
               "From elegant tea parties to fun-themed celebrations, we design baby showers that reflect the parents' style while creating a warm, welcoming atmosphere.",
             coreValues: [
               {
-                icon: <Heart className="text-[#F39C12]" size={20} />,
+                icon: <Heart className="text-[#D4AF37]" size={20} />,
                 title: "Warmth",
                 desc: "Creating events filled with love and support for the new parents",
               },
               {
-                icon: <Sparkles className="text-[#F39C12]" size={20} />,
+                icon: <Sparkles className="text-[#FF5E5B]" size={20} />,
                 title: "Whimsy",
                 desc: "Designing celebrations that capture the magic of new beginnings",
               },
               {
-                icon: <User className="text-[#F39C12]" size={20} />,
+                icon: <User className="text-[#D4AF37]" size={20} />,
                 title: "Comfort",
                 desc: "Ensuring the expecting mother feels celebrated and relaxed",
               },
@@ -339,9 +339,9 @@ const Services = () => {
           content.title = "Graceful Upanayanam Ceremonies";
           content.description =
             "Uphold age-old traditions with purity and elegance in this sacred rite of passage.";
-          content.image = "/src/assets/images/upanayanam-banner.jpg";
-          content.accentColor = "#1ABC9C";
-          content.gradient = "from-[#1ABC9C] to-[#3498DB]";
+          content.image = "/src/assets/images/upanayanam-banner.jpeg";
+  content.accentColor = "#D4AF37";
+          content.gradient = "from-[#D4AF37] to-[#FFD700]";
           content.sectionContent = {
             title: "Sacred Thread Ceremonies",
             subtitle: "Honoring Tradition with Grace",
@@ -351,17 +351,17 @@ const Services = () => {
               "From traditional setups to contemporary interpretations, we ensure the ceremony maintains its spiritual significance while creating a celebration the whole family can enjoy.",
             coreValues: [
               {
-                icon: <Heart className="text-[#1ABC9C]" size={20} />,
+                icon: <Heart className="text-[#D4AF37]" size={20} />,
                 title: "Spirituality",
                 desc: "Maintaining the sacred nature of this important ritual",
               },
               {
-                icon: <Sparkles className="text-[#1ABC9C]" size={20} />,
+                icon: <Sparkles className="text-[#FF5E5B]" size={20} />,
                 title: "Elegance",
                 desc: "Designing ceremonies with grace and beauty",
               },
               {
-                icon: <User className="text-[#1ABC9C]" size={20} />,
+                icon: <User className="text-[#D4AF37]" size={20} />,
                 title: "Family",
                 desc: "Creating events that bring generations together in celebration",
               },
@@ -398,7 +398,7 @@ const Services = () => {
                 desc: "Innovative ideas that make your event stand out",
               },
               {
-                icon: <Briefcase className="text-[#D4AF37]" size={20} />,
+                icon: <Briefcase className="text-[#FF5E5B]" size={20} />,
                 title: "Professionalism",
                 desc: "Meticulous planning and flawless execution",
               },
@@ -424,7 +424,7 @@ const Services = () => {
     <div className="bg-[#0D0D0D] text-white relative overflow-hidden">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/90 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/90 z-10"></div>
         <img
           src={category.image}
           alt={category.title}
@@ -449,20 +449,20 @@ const Services = () => {
             variants={fadeIn}
             className="text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white"
           >
-            <span className="bg-gradient-to-r from-white via-[#FF5E5B] to-white bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#D4AF37] via-[#FF5E5B] to-[#D4AF37] bg-clip-text text-transparent">
               {category.title}
             </span>
           </motion.h1>
           <motion.p
             variants={fadeIn}
-            className="text-[#B0B0B0] max-w-3xl mx-auto leading-relaxed text-xl md:text-2xl"
+            className="text-[#cdcdcd] max-w-3xl mx-auto leading-relaxed text-xl md:text-2xl"
           >
             {category.description}
           </motion.p>
           <motion.div variants={fadeIn} className="pt-8">
             <motion.a
               href="#managers"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-[#0D0D0D] font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
               whileHover={{
                 scale: 1.05,
                 boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.4)",
@@ -624,7 +624,7 @@ const Services = () => {
       </section>
 
       {/* Event Manager Section */}
-      <section id="managers" className="py-28 px-6 relative z-10 bg-black">
+      <section id="managers" className="py-28 px-6 relative z-10 bg-gradient-to-t from-[#111111] via-[#282828] to-[#111111]">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <motion.h2
@@ -636,7 +636,7 @@ const Services = () => {
             >
               Meet Our{" "}
               <span
-                className={`text-transparent bg-clip-text bg-gradient-to-r ${category.gradient}`}
+                className={"text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] "}
               >
                 Event Specialists
               </span>
@@ -690,18 +690,18 @@ const Services = () => {
                   key={manager.eventManagerId}
                   variants={fadeIn}
                   whileHover="hover"
-                  className="group relative bg-gradient-to-b from-[#1F1F1F] to-[#121212] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-[#333] flex flex-col items-center p-8 hover:border-[#D4AF37] hover:scale-[1.02]"
+                  className="group relative bg-gradient-to-b from-[#2b1e1e] to-[#121212] rounded-2xl overflow-hidden shadow-lg shadow-black hover:shadow-[#D4AF37] transition-all duration-300 border border-[#333] flex flex-col items-center p-8 hover:border-[#D4AF37] hover:scale-[1.02]"
                 >
                   {/* Circular Profile Image with Glow */}
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#D4AF37] mb-6 group-hover:ring-2 ring-[#D4AF37] ring-opacity-50 transition-all duration-300">
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-3 border-[#D4AF37] mb-6 transition-all duration-300">
                     <img
                       src={`http://localhost:8001/uploads/${manager.profileImage}`}
                       alt={manager.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500"
                     />
                   </div>
                   {/* Name */}
-                  <h3 className="text-2xl font-bold text-white text-center mb-2 group-hover:text-[#D4AF37] transition-colors">
+                  <h3 className="text-2xl font-bold text-[#e3b51b] text-center mb-2 transition-colors">
                     {manager.name}
                   </h3>
                   {/* Location (Address) */}
@@ -738,7 +738,7 @@ const Services = () => {
                           {/* Default empty star */}
                           <Star
                             size={20}
-                            className="absolute top-0 left-0 text-gray-500"
+                            className="absolute top-0 left-0 text-gray-700"
                           />
 
                           {/* Filled or half part of the star */}
@@ -765,7 +765,7 @@ const Services = () => {
                   {/* View Portfolio Button */}
                   <Link
                     to={`/event-manager-details/${manager.eventManagerId}`}
-                    className="block w-full py-2 bg-[#FF5E5B] rounded-full text-[#0D0D0D] font-semibold hover:text-white transition-all duration-300 text-center mt-4 shadow-md hover:shadow-lg"
+                    className="block w-full py-2 bg-gradient-to-r from-[#FF5E5B] to-[#E74C3C] hover:from-[#E74C3C] hover:to-[#FF5E5B] rounded-full text-white font-semibold transition-all duration-300 text-center mt-4"
                   >
                     View Portfolio
                   </Link>

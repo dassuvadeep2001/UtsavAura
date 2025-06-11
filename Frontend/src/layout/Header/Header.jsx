@@ -57,7 +57,7 @@ const DropdownMenu = ({
 
       <div
         id={`${id}-dropdown`}
-        className={`absolute top-10 left-0 bg-[#0D0D0D] border border-[#D4AF37]/20 shadow-xl rounded-lg py-4 w-[32rem] transition-all duration-300 ${
+        className={`absolute top-10 left-0 bg-[#0D0D0D] border border-[#D4AF37]/20 shadow-xl rounded-lg py-4 w-[30rem] transition-all duration-300 ${
           isOpen
             ? "opacity-100 translate-y-0 visible pointer-events-auto"
             : "opacity-0 -translate-y-2 invisible pointer-events-none"
@@ -354,7 +354,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="bg-[#FF5E5B] text-white px-4 py-2 rounded-full hover:brightness-110 transition-all duration-200 font-semibold"
+              className="bg-[#FF5E5B] text-white px-4 py-2 rounded-full hover:bg-red-500 transition-all duration-200"
             >
               Login / Register
             </Link>

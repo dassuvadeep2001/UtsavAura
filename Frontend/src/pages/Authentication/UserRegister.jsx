@@ -233,7 +233,7 @@ const UserRegister = () => {
         <div className="relative z-10 mb-8">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#D4AF37]/20 mb-6 mx-auto border-2 border-[#D4AF37]/30"
+            className="flex items-center justify-center w-16 h-16 rounded-full bg-[#D4AF37]/20 mb-6 mx-auto border-2 border-[#D4AF37]/30"
           >
             <Lightbulb className="text-[#D4AF37]" size={28} />
           </motion.div>
@@ -279,7 +279,7 @@ const UserRegister = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider mb-3"
+            className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider mb-3 text-center"
           >
             Trusted by industry leaders
           </motion.h3>
@@ -829,7 +829,7 @@ const UserRegister = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="text-center space-y-4 p-6 bg-green-500/10 border border-green-500/30 rounded-xl"
+              className="text-center space-y-4 p-10 bg-green-500/10 border border-green-500/30 rounded-xl mt-16 mb-16"
             >
               <Check size={48} className="mx-auto text-green-400" />
               <h3 className="text-xl font-bold text-white">

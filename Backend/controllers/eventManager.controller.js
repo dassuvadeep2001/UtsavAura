@@ -5,6 +5,7 @@ const {
 const Mailer = require('../helper/mailer');
 const eventManagerRepository = require('../repository/eventManager.repository');
 const mongoose = require('mongoose');
+const crypto = require("crypto");
 
 class EventManagerController {
   async createEventManager(req, res) {
@@ -37,7 +38,6 @@ class EventManagerController {
 
       let tempUser = new (require('../models/user.model'))();
       let hashedPassword = await tempUser.generateHash(password);
-      let otp = Math.floor(100000 + Math.random() * 900000);
 
       let userData = {
         name,
@@ -46,9 +46,7 @@ class EventManagerController {
         address,
         profileImage,
         password: hashedPassword,
-        otp,
         role: "eventManager",
-        otpCreatedAt: new Date(),
       };
 
       let newEventManager = await eventManagerRepository.createUser(userData);
@@ -75,25 +73,33 @@ class EventManagerController {
       let newManager = await eventManagerRepository.createEventManagerDetails(eventManagerDetails);
 
       if (newManager) {
+        const emailVerifyToken = crypto.randomBytes(32).toString("hex");
+                await eventManagerRepository.updateUserById(newEventManager._id, {
+                  emailVerifyToken,
+                  emailVerifyTokenCreatedAt: new Date(),
+                });
         const mailer = new Mailer(
           "Gmail",
           process.env.APP_EMAIL,
           process.env.APP_PASSWORD
         );
 
+         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${emailVerifyToken}`;
         let mailObj = {
           to: email,
-          subject: "Registration Confirmation",
+          subject: "Verify Your Email",
           html: `<div style="line-height: 1.6;">
-            <h2 style="color: #4A90E2;">Hi ${name},</h2>
-            <p>Thank you for registering with us. To complete your registration, please verify your email address using the OTP below:</p>
-            <div style="margin: 20px 0; padding: 10px; background-color: #f1f1f1; border-left: 4px solid #4A90E2;">
-              <p style="font-size: 20px; font-weight: bold; color: #4A90E2; margin: 0;">${otp}</p>
-            </div>
-            <p>This OTP is valid for a limited time. Please do not share it with anyone.</p>
-            <br/>
-            <p>Best regards,<br/>The UtsavAura Team</p>
-          </div>`,
+          <h2 style="color: #4A90E2;">Hi ${newEventManager.name},</h2>
+          <p>Thank you for registering with us. Please verify your email address by clicking the button below:</p>
+          <div style="margin: 20px 0;">
+            <a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#4A90E2;color:#fff;text-decoration:none;border-radius:5px;">Verify Email</a>
+          </div>
+          <p>If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="color: #4A90E2; word-break: break-all;">${verifyLink}</p>
+          <p>If you did not register, please ignore this email.</p>
+          <br/>
+          <p>Best regards,<br/>The UtsavAura Team</p>
+        </div>`,
         };
 
         mailer.sendMail(mailObj);
