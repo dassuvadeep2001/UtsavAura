@@ -233,13 +233,6 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.dispatchEvent(new Event("authChange"));
-    navigate("/login");
-  };
-
   // Generate services items only when categories change
   const servicesItems = categories.map((cat) => ({
     to: `/services/${cat._id}`,
@@ -276,20 +269,20 @@ const Navbar = () => {
           >
             About
           </Link>
-{authState.isLoggedIn && (
-  <DropdownMenu
-    id="services"
-    label="Services"
-    items={servicesItems}
-    isOpen={servicesOpen}
-    onToggle={() => {
-      setServicesOpen((prev) => !prev);
-      setExploreOpen(false);
-    }}
-    onClose={() => setExploreOpen(false)}
-    onItemClick={() => setServicesOpen(false)}
-  />
-)}
+          {authState.isLoggedIn && (
+            <DropdownMenu
+              id="services"
+              label="Services"
+              items={servicesItems}
+              isOpen={servicesOpen}
+              onToggle={() => {
+                setServicesOpen((prev) => !prev);
+                setExploreOpen(false);
+              }}
+              onClose={() => setExploreOpen(false)}
+              onItemClick={() => setServicesOpen(false)}
+            />
+          )}
 
           <DropdownMenu
             id="explore"
@@ -330,7 +323,7 @@ const Navbar = () => {
                         : `http://localhost:8001/uploads/${authState.profileImage}`
                     }
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-pointer"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
@@ -341,15 +334,6 @@ const Navbar = () => {
                   </div>
                 )}
               </button>
-
-              <div className="absolute right-0 mt-2 w-48 bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37]"
-                >
-                  Logout
-                </button>
-              </div>
             </div>
           ) : (
             <Link

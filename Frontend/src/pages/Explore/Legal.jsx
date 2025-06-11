@@ -288,7 +288,7 @@ const Legal = () => {
             </p>
             <a
               href="mailto:legal@utsavaura.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#0D0D0D] font-semibold rounded-full transition"
+              className="inline-flex items-center gap-2 px-6 py-3 text-white bg-[#D4AF37] hover:bg-[#D4AF37]/90 font-semibold rounded-full transition"
             >
               <Mail size={18} />
               Contact Legal Team
