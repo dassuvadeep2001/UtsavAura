@@ -125,7 +125,7 @@ const About = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3.5 bg-transparent text-white font-semibold rounded-full border-2 border-[#D4AF37]/40 hover:border-[#D4AF37]/80 transition flex items-center justify-center"
+                className="px-8 py-3.5 bg-transparent cursor-pointer text-white font-semibold rounded-full border-2 border-[#D4AF37]/40 hover:border-[#D4AF37]/80 transition flex items-center justify-center"
               >
                 View Blog
               </motion.button>
@@ -689,7 +689,7 @@ const About = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] text-[#0D0D0D] font-bold rounded-full shadow-xl hover:shadow-2xl transition flex items-center justify-center"
+                className="px-8 py-4 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] text-white cursor-pointer font-bold rounded-full shadow-xl hover:shadow-2xl transition flex items-center justify-center"
               >
                 Book Free Consultation{" "}
                 <ChevronRight className="ml-2" size={20} />

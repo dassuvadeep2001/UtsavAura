@@ -306,7 +306,7 @@ const PaymentInfo = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href="/contact"
-                className="px-6 py-3 border border-[#D4AF37] text-[#D4AF37] font-medium rounded-full hover:bg-[#D4AF37]/10 transition-colors duration-300"
+                className="px-6 py-3 border border-[#D4AF37] text-white font-medium rounded-full hover:bg-[#D4AF37]/10 transition-colors duration-300"
               >
                 Need Help?
               </a>

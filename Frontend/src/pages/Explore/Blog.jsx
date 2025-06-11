@@ -160,7 +160,7 @@ const Blog = () => {
           <motion.div variants={fadeIn} className="pt-6">
             <motion.a
               href="#blog-posts"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-[#0D0D0D] font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
               whileHover={{
                 scale: 1.05,
                 boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.3)",
@@ -336,7 +336,7 @@ const Blog = () => {
           >
             <motion.a
               href="/contact"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-[#0D0D0D] font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-bold rounded-full hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
               whileHover={{
                 scale: 1.05,
                 boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.4)",

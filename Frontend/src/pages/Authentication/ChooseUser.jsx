@@ -75,7 +75,7 @@ const ChooseUserPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="mt-4 px-5 py-2 bg-[#FF5E5B] text-white font-semibold rounded-full transition-all shadow-md group-hover:shadow-[#FF5E5B]/50"
+                  className="mt-4 px-5 py-2 bg-[#FF5E5B] text-white cursor-pointer font-semibold rounded-full transition-all shadow-md group-hover:shadow-[#FF5E5B]/50"
                 >
                   Register as User
                 </motion.button>
@@ -128,7 +128,7 @@ const ChooseUserPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="mt-4 px-5 py-2 bg-[#FF5E5B] text-white font-semibold rounded-full transition-all shadow-md group-hover:shadow-[#FF5E5B]/50"
+                  className="mt-4 px-5 py-2 bg-[#FF5E5B]  cursor-pointer text-white font-semibold rounded-full transition-all shadow-md group-hover:shadow-[#FF5E5B]/50"
                 >
                   Register as Manager
                 </motion.button>

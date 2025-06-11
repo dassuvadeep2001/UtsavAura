@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Star } from "lucide-react"; // Lucid icon
+import { toast, ToastContainer } from "react-toastify"; // For notifications
 
 const EventManagerDetails = () => {
   const { id } = useParams();
@@ -46,8 +47,7 @@ const EventManagerDetails = () => {
         }
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Failed to fetch event manager details"
+          err.response?.data?.message || "Failed to fetch event manager details"
         );
       } finally {
         setLoading(false);
@@ -62,8 +62,14 @@ const EventManagerDetails = () => {
       setSubmitting(true);
       const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error("You need to be logged in to submit a review");
+        toast.error("You need to be logged in to submit a review", {
+          toastId: "auth-error",
+          position: "top-center",
+          autoClose: 5000,
+        });
+        return;
       }
+
       const response = await axios.post(
         `http://localhost:8001/api/review/addReview/${id}`,
         {
@@ -77,7 +83,9 @@ const EventManagerDetails = () => {
           },
         }
       );
-      if (response.data.status === 200) {
+
+      // Check for successful response (200-299 status code)
+      if (response.status >= 200 && response.status < 300) {
         // Update UI optimistically
         setEventManager((prev) => ({
           ...prev,
@@ -86,17 +94,52 @@ const EventManagerDetails = () => {
             (prev.reviewCount + 1),
           reviewCount: prev.reviewCount + 1,
         }));
+
+        toast.success("Review submitted successfully!", {
+          toastId: "review-success",
+          position: "top-center",
+          autoClose: 3000,
+          draggablePercent: 60,
+        });
+
         reset();
         setRating(1);
         setShowReviewForm(false);
+      } else {
+        // Handle non-2xx status codes
+        toast.warning(
+          response.data.message || "Server returned unexpected response",
+          {
+            toastId: "server-warning",
+          }
+        );
+        throw new Error(response.data.message || "Failed to submit review");
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Failed to submit review. Please try again later.";
-      alert(errorMessage);
+      console.error("Review submission error:", err);
+
+      let errorMessage = "Failed to submit review. Please try again later.";
+
+      if (err.response) {
+        // Server responded with error status (4xx, 5xx)
+        errorMessage =
+          err.response.data.message ||
+          err.response.data.error ||
+          `Server error (${err.response.status})`;
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = "No response from server - check your connection";
+      } else {
+        // Something happened in setting up the request
+        errorMessage = err.message || errorMessage;
+      }
+
+      toast.error(errorMessage, {
+        toastId: "review-error",
+        position: "top-center",
+        autoClose: 8000,
+        draggablePercent: 60,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -104,20 +147,11 @@ const EventManagerDetails = () => {
 
   if (loading)
     return (
-      <div className="text-white p-10">
-        Loading event manager details...
-      </div>
+      <div className="text-white p-10">Loading event manager details...</div>
     );
-  if (error)
-    return (
-      <div className="text-red-500 p-10">Error: {error}</div>
-    );
+  if (error) return <div className="text-red-500 p-10">Error: {error}</div>;
   if (!eventManager)
-    return (
-      <div className="text-white p-10">
-        No event manager found
-      </div>
-    );
+    return <div className="text-white p-10">No event manager found</div>;
 
   const {
     name = "N/A",
@@ -142,6 +176,18 @@ const EventManagerDetails = () => {
 
   return (
     <div className="bg-gradient-to-t from-[#000000] via-[#000000] to-[#94720049] text-white min-h-screen pt-5">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       {/* Collage Header */}
       <div className="relative w-5/6 mx-auto p-4 rounded-lg">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -166,7 +212,7 @@ const EventManagerDetails = () => {
               src={
                 profileImage
                   ? `http://localhost:8001/uploads/${profileImage}`
-                  : "https://via.placeholder.com/150" 
+                  : "https://via.placeholder.com/150"
               }
               alt={name}
               className="w-full h-full object-cover object-center rounded-full"
@@ -194,10 +240,7 @@ const EventManagerDetails = () => {
               <DetailItem label="Location" value={address} />
               <DetailItem label="Phone" value={phone} />
               <DetailItem label="Email" value={email} />
-              <DetailItem
-                label="Rating"
-                value={`${avgReview.toFixed(1)}/5`}
-              />
+              <DetailItem label="Rating" value={`${avgReview.toFixed(1)}/5`} />
             </div>
             <section>
               <h3 className="text-xl font-semibold mb-4 text-[#FF5E5B]">
@@ -252,9 +295,8 @@ const EventManagerDetails = () => {
             {/* Leave a Review Section */}
             <div className="bg-[#1A1A1A] p-6 rounded-xl shadow-xl border border-white/10">
               <h2 className="text-2xl font-semibold text-white mb-4">
-                Loved our{" "}
-                <span className="text-[#D4AF37]">Services</span>? Leave a{" "}
-                <span className="text-[#FF5E5B]">Review</span>!
+                Loved our <span className="text-[#D4AF37]">Services</span>?
+                Leave a <span className="text-[#FF5E5B]">Review</span>!
               </h2>
               {!showReviewForm ? (
                 <button
@@ -319,13 +361,11 @@ const EventManagerDetails = () => {
                         required: "Review text is required",
                         minLength: {
                           value: 3,
-                          message:
-                            "Review must be at least 3 characters long",
+                          message: "Review must be at least 3 characters long",
                         },
                         maxLength: {
                           value: 100,
-                          message:
-                            "Review must not exceed 100 characters",
+                          message: "Review must not exceed 100 characters",
                         },
                       })}
                       placeholder="Write your feedback here..."

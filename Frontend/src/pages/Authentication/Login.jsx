@@ -11,6 +11,7 @@ import {
   Users,
   CheckCircle,
 } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -50,54 +51,54 @@ const Login = () => {
         role: isAdmin ? "admin" : "user",
       });
 
+      // Debug: Toast after API call
       if (!response.data.success) {
+        toast.warning("Server returned unsuccessful response", {
+          toastId: "server-warning",
+        });
         throw new Error(response.data.message || "Login failed");
       }
 
       const { token, user } = response.data;
-      if (!user || !user.role) {
-        throw new Error("Invalid user data received from server");
-      }
 
-      console.log("Login response:", response.data);
-      // Store authentication data
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       window.dispatchEvent(new Event("authChange"));
-      console.log("Token:", response.data.token);
 
-      if (!user || !user.role) {
-        throw new Error("Invalid user data received from server");
-      }
-
-      // Redirect based on role
-      switch (user.role) {
-        case "admin":
-          navigate("/profile");
-          break;
-        case "eventManager":
-          navigate("/profile");
-          break;
-        default:
-          navigate("/profile");
-      }
+      // Final success toast with navigation
+      toast.success("Authentication successful !", {
+        toastId: "storage-start",
+        autoClose: 1000,
+        onClose: () => navigate("/profile"),
+      });
     } catch (err) {
       console.error("Login error:", err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        "Login failed. Please try again.";
-      setError(errorMessage);
 
-      // Show more specific error for admin/user mismatch
-      if (err.response?.status === 403) {
-        setError(err.response.data.message);
+      // Enhanced error handling
+      let errorMessage = "Login failed. Please try again.";
+
+      if (err.response) {
+        errorMessage =
+          err.response.data.message || `Server error (${err.response.status})`;
+      } else if (err.request) {
+        errorMessage = "No response from server - check your connection";
       }
+
+      // Error toast with forced render
+      setTimeout(() => {
+        toast.error(errorMessage, {
+          toastId: "login-error",
+          position: "top-center",
+          autoClose: 8000,
+          draggablePercent: 60,
+        });
+      }, 0);
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
-
   const carouselSlides = [
     {
       icon: <Shield className="text-[#D4AF37]" size={48} />,
@@ -145,6 +146,18 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] px-4 py-12 sm:py-16">
+     <ToastContainer 
+       position="top-center"
+       autoClose={5000}
+       hideProgressBar={false}
+       newestOnTop={false}
+       closeOnClick
+       rtl={false}
+       pauseOnFocusLoss
+       draggable
+       pauseOnHover
+       theme="dark"
+     />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -344,7 +357,7 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <LogIn className="mr-2" size={18} />
+                  <LogIn className="mr-2 " size={18} />
                   Login
                 </>
               )}

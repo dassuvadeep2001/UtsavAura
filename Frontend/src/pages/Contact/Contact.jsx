@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { useInView } from "react-intersection-observer";
 import { endpoints } from "../../api/api_url";
 import axiosInstance from "../../api/axiosInstance";
+import { ToastContainer, toast } from "react-toastify";
 
 const Contact = () => {
   const {
@@ -22,25 +23,53 @@ const Contact = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-   try{
-    const response = await axiosInstance.post(endpoints.createQuery, {
-      name: data.name,
-      email: data.email,
-      message: data.message,
-    });
-    if (response.status === 201) {
-      console.log("Message sent successfully:", response.data);
-      alert("Message sent successfully!");
-      reset();
-    } else {
-      alert("Failed to send message. Please try again.");
-    }
-   }
-    catch (error) {
-        alert(
-          error?.response?.data?.message || "Something went wrong. Please try again."
+    try {
+      const response = await axiosInstance.post(endpoints.createQuery, {
+        name: data.name,
+        email: data.email,
+        message: data.message,
+      });
+
+      if (response.status === 201) {
+        console.log("Message sent successfully:", response.data);
+        toast.success(
+          "Message sent successfully! We'll get back to you soon.",
+          {
+            toastId: "query-success",
+            position: "top-center",
+            autoClose: 5000,
+            draggablePercent: 60,
+          }
         );
+        reset();
+      } else {
+        toast.warning("Server returned unexpected response", {
+          toastId: "server-warning",
+        });
+        throw new Error(response.data.message || "Failed to send message");
       }
+    } catch (error) {
+      console.error("Query submission error:", error);
+
+      let errorMessage = "Failed to send message. Please try again.";
+
+      if (error.response) {
+        errorMessage =
+          error.response.data.message ||
+          `Server error (${error.response.status})`;
+      } else if (error.request) {
+        errorMessage = "No response from server - check your connection";
+      }
+
+      setTimeout(() => {
+        toast.error(errorMessage, {
+          toastId: "query-error",
+          position: "top-center",
+          autoClose: 8000,
+          draggablePercent: 60,
+        });
+      }, 0);
+    }
   };
 
   // Animation variants
@@ -100,6 +129,18 @@ const Contact = () => {
 
   return (
     <div className="bg-[#0D0D0D] text-white overflow-hidden">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/90 z-10"></div>
@@ -196,46 +237,49 @@ const Contact = () => {
             you.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.8,
-              duration: 0.8,
-              ease: [0.2, 0.8, 0.2, 1],
-            }}
-            className="mt-12"
-          >
-            <motion.a href="/login">
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.3)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] text-[#0D0D0D] font-bold rounded-full shadow-lg"
-              >
-                Get Started
-                <ChevronRight className="ml-2 inline" size={18} />
-              </motion.button>
-            </motion.a>
-          </motion.div>
+          {/* Conditional Get Started Button */}
+          {!localStorage.getItem("token") && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.8,
+                duration: 0.8,
+                ease: [0.2, 0.8, 0.2, 1],
+              }}
+              className="mt-12"
+            >
+              <motion.a href="/login">
+                <motion.button
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.3)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 py-4 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] cursor-pointer text-white font-bold rounded-full shadow-lg"
+                >
+                  Get Started
+                  <ChevronRight className="ml-2 inline" size={18} />
+                </motion.button>
+              </motion.a>
+            </motion.div>
+          )}
         </div>
 
         {/* Scroll Indicator */}
         <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 }}
-                  className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
-                >
-                  <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
-                    <ChevronRight
-                      className="text-[#D4AF37] transform rotate-90"
-                      size={20}
-                    />
-                  </div>
-                </motion.div>
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
+        >
+          <div className="animate-bounce w-10 h-10 rounded-full bg-[#D4AF37]/10 backdrop-blur-sm border border-[#D4AF37]/20 flex items-center justify-center">
+            <ChevronRight
+              className="text-[#D4AF37] transform rotate-90"
+              size={20}
+            />
+          </div>
+        </motion.div>
       </section>
 
       {/* Contact Form & Info */}
@@ -394,7 +438,8 @@ const Contact = () => {
                     />
                   ) : (
                     <>
-                      Send Message <Send className="inline ml-2" size={18} />
+                      <span className="text-white ">Send Message</span>{" "}
+                      <Send className="inline ml-2 text-white" size={18} />
                     </>
                   )}
                 </motion.button>
@@ -495,7 +540,7 @@ const Contact = () => {
                     borderColor: "#D4AF37",
                   }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 bg-transparent text-white font-semibold rounded-full border-2 border-[#D4AF37]/40 transition flex items-center gap-2"
+                  className="px-6 py-3 bg-transparent text-white cursor-pointer font-semibold rounded-full border-2 border-[#D4AF37]/40 transition flex items-center gap-2"
                 >
                   View FAQ <ChevronRight size={18} />
                 </motion.button>
