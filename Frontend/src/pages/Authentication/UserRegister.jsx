@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   RefreshCw,
@@ -16,7 +16,7 @@ import {
 import { motion } from "framer-motion";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
@@ -36,6 +36,13 @@ const UserRegister = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate]);
   const {
     register,
     handleSubmit,

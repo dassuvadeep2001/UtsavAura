@@ -92,6 +92,7 @@ const Navbar = () => {
   const [exploreOpen, setExploreOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [authState, setAuthState] = useState({
     isLoggedIn: false,
     user: null,
@@ -127,6 +128,17 @@ const Navbar = () => {
       desc: "Terms, policies, and legal information.",
     },
   ];
+
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    if (!authState.isLoggedIn) return navigate("/login");
+
+    setProfileOpen(!profileOpen);
+    setServicesOpen(false);
+    setExploreOpen(false);
+  };
+
+
 
   useEffect(() => {
     const checkAuthState = () => {
@@ -208,30 +220,16 @@ const Navbar = () => {
       ) {
         setExploreOpen(false);
       }
+      if (
+        !e.target.closest("#profile-dropdown") &&
+        !e.target.closest("#profile-btn")
+      ) {
+        setProfileOpen(false);
+      }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-
-  const handleProfileClick = () => {
-    if (!authState.isLoggedIn) return navigate("/login");
-
-    try {
-      switch (authState.user?.role) {
-        case "admin":
-          navigate("/profile");
-          break;
-        case "eventManager":
-          navigate("/profile");
-          break;
-        default:
-          navigate("/profile");
-      }
-    } catch (err) {
-      console.error("Error handling profile click:", err);
-      navigate("/login");
-    }
-  };
 
   // Generate services items only when categories change
   const servicesItems = categories.map((cat) => ({
@@ -307,12 +305,13 @@ const Navbar = () => {
           {isLoading ? (
             <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse"></div>
           ) : authState.isLoggedIn ? (
-            <div className="relative group">
+            <div className="relative">
               <button
                 onClick={handleProfileClick}
                 className="rounded-full overflow-hidden w-10 h-10 border-2 border-[#D4AF37] hover:brightness-110 transition-all duration-200"
                 aria-label="Profile"
                 title={authState.user?.name || "Profile"}
+                id="profile-btn"
               >
                 {authState.profileImage ? (
                   <img
@@ -330,10 +329,47 @@ const Navbar = () => {
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full bg-[#D4AF37] text-black font-semibold text-lg">
-                    <img src="/src/assets/images/user.png" alt="Profile" className="cursor-pointer"  />
+                    <img
+                      src="/src/assets/images/user.png"
+                      alt="Profile"
+                      className="cursor-pointer"
+                    />
                   </div>
                 )}
               </button>
+
+              {/* Profile Dropdown */}
+              <div
+                id="profile-dropdown"
+                className={`absolute right-0 mt-2 w-48 bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg py-1 z-50 ${
+                  profileOpen
+                    ? "opacity-100 translate-y-0 visible pointer-events-auto"
+                    : "opacity-0 -translate-y-2 invisible pointer-events-none"
+                } transition-all duration-200`}
+              >
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/manageAccount"
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  Manage Account
+                </Link>
+                <Link
+                  to="/updateProfile"
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  Update Profile
+                </Link>
+               
+              </div>
             </div>
           ) : (
             <Link

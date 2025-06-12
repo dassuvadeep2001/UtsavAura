@@ -28,11 +28,11 @@ function App() {
   return (
     <Router>
       {/* ScrollToTop component can be added here if needed */}
-      <ScrollToTop/>
+      <ScrollToTop />
       <Routes>
         {/* All routes that should include Navbar & Footer go inside Layout */}
         <Route element={<Layout />}>
-          <Route path="/" element={<Home/>} />
+          <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<Faq />} />
@@ -40,12 +40,18 @@ function App() {
           <Route path="/payment-info" element={<PaymentInfo />} />
           <Route path="/legal" element={<Legal />} />
           <Route path="/login" element={<Login />} />
-           <Route path="/choose-user" element={<ChooseUserPage />} />
+          <Route path="/choose-user" element={<ChooseUserPage />} />
           <Route path="/user-register" element={<UserRegister />} />
-          <Route path="/event-manager-register" element={<EventManagerRegister />} />
+          <Route
+            path="/event-manager-register"
+            element={<EventManagerRegister />}
+          />
           <Route path="/services/:categoryId" element={<Services />} />
-          <Route path="/event-manager-details/:id" element={<EventManagerDetails/>} />
-         
+          <Route
+            path="/event-manager-details/:id"
+            element={<EventManagerDetails />}
+          />
+
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
           <Route path="/profile" element={<Profile />} />

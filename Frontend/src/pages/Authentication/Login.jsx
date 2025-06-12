@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Eye,
@@ -28,6 +28,14 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate]);
+
   const {
     register,
     handleSubmit,
@@ -51,7 +59,6 @@ const Login = () => {
         role: isAdmin ? "admin" : "user",
       });
 
-      // Debug: Toast after API call
       if (!response.data.success) {
         toast.warning("Server returned unsuccessful response", {
           toastId: "server-warning",
@@ -65,7 +72,6 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
       window.dispatchEvent(new Event("authChange"));
 
-      // Final success toast with navigation
       toast.success("Login Done Successfully !", {
         toastId: "storage-start",
         autoClose: 1000,
@@ -74,7 +80,6 @@ const Login = () => {
     } catch (err) {
       console.error("Login error:", err);
 
-      // Enhanced error handling
       let errorMessage = "Login failed. Please try again.";
 
       if (err.response) {
@@ -84,7 +89,6 @@ const Login = () => {
         errorMessage = "No response from server - check your connection";
       }
 
-      // Error toast with forced render
       setTimeout(() => {
         toast.error(errorMessage, {
           toastId: "login-error",
@@ -99,6 +103,7 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
   const carouselSlides = [
     {
       icon: <Shield className="text-[#D4AF37]" size={48} />,
@@ -146,18 +151,18 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] px-4 py-12 sm:py-16">
-     <ToastContainer 
-       position="top-center"
-       autoClose={5000}
-       hideProgressBar={false}
-       newestOnTop={false}
-       closeOnClick
-       rtl={false}
-       pauseOnFocusLoss
-       draggable
-       pauseOnHover
-       theme="dark"
-     />
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -2,8 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, CalendarCheck, Users, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ChooseUserPage = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
