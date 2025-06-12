@@ -140,6 +140,7 @@ const Contact = () => {
         draggable
         pauseOnHover
         theme="dark"
+        className={"z-50 h-30"}
       />
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">

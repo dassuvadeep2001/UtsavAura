@@ -95,10 +95,10 @@ const EventManagerDetails = () => {
           reviewCount: prev.reviewCount + 1,
         }));
 
-        toast.success("Review submitted successfully!", {
+        toast.success("Review Submitted Successfully!", {
           toastId: "review-success",
           position: "top-center",
-          autoClose: 3000,
+          autoClose: 2000,
           draggablePercent: 60,
         });
 
@@ -137,7 +137,7 @@ const EventManagerDetails = () => {
       toast.error(errorMessage, {
         toastId: "review-error",
         position: "top-center",
-        autoClose: 8000,
+        autoClose: 5000,
         draggablePercent: 60,
       });
     } finally {
@@ -200,6 +200,7 @@ const EventManagerDetails = () => {
                 src={`http://localhost:8001/uploads/${img}`}
                 alt={`Work ${idx + 1}`}
                 className="w-full h-full object-cover object-center transition duration-300 rounded-md"
+                
               />
             </div>
           ))}
@@ -212,7 +213,7 @@ const EventManagerDetails = () => {
               src={
                 profileImage
                   ? `http://localhost:8001/uploads/${profileImage}`
-                  : "https://via.placeholder.com/150"
+                  : "/src/assets/images/user.png"
               }
               alt={name}
               className="w-full h-full object-cover object-center rounded-full"

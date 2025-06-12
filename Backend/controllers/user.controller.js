@@ -489,37 +489,41 @@ class UserController {
     }
   }
 
-  async deleteProfile(req, res) {
-    try {
-      const user = req.user;
+ async deleteProfile(req, res) {
+  try {
+    const user = req.user;
 
-      // Fetch user data to get the profile image filename
-      const userData = await userRepo.findById(user._id);
-      if (userData && userData.profileImage) {
-        // Use process.cwd() to get the project root directory
-        const imagePath = path.join(
-          process.cwd(),
-          "uploads",
-          userData.profileImage
-        );
-        // Delete the image file if it exists
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-        }
+    // Fetch user data to get the profile image filename
+    const userData = await userRepo.findById(user._id);
+    if (userData && userData.profileImage) {
+      const imagePath = path.join(
+        process.cwd(),
+        "uploads",
+        userData.profileImage
+      );
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
       }
-
-      await userRepo.deleteById(user._id);
-      return res.json({
-        status: 200,
-        message: "Profile deleted successfully",
-        data: {},
-      });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ status: 500, message: error.message, data: {} });
     }
+
+    // If user is an event manager, delete from eventManagerModel as well
+    if (user.role === "eventManager") {
+      await eventManagerModel.deleteOne({ eventManagerId: user._id });
+    }
+
+    await userRepo.deleteById(user._id);
+
+    return res.json({
+      status: 200,
+      message: "Profile deleted successfully",
+      data: {},
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: 500, message: error.message, data: {} });
   }
+}
   async getAllUsers(req, res) {
     try {
       const users = await userModel.find({

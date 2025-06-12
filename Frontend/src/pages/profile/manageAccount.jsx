@@ -13,7 +13,9 @@ const ManageAccount = () => {
   const handleLogout = () => {
     localStorage.removeItem("token"); // Clear token
     toast.success("Logged out successfully!");
-    window.location.href = "/login"; // Redirect to login page
+    setTimeout(() => {
+      window.location.href = "/"; // Redirect to home page
+    }, 2000);
   };
 
   // 🗑️ DELETE ACCOUNT FUNCTION

@@ -158,6 +158,10 @@ const Profile = () => {
               src={`${imageBaseUrl}${user.profileImage}`}
               alt="Profile"
               className="w-45 h-45 rounded-full shadow-xl object-cover relative z-10"
+                onError={(e) => {
+    e.target.src = '/src/assets/images/user.png';
+    e.onerror = null; 
+  }}
             />
             {/* ✏️ Edit Icon */}
             <Link

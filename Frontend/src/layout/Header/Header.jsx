@@ -330,7 +330,7 @@ const Navbar = () => {
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full bg-[#D4AF37] text-black font-semibold text-lg">
-                    {authState.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    <img src="/src/assets/images/user.png" alt="Profile" className="cursor-pointer"  />
                   </div>
                 )}
               </button>

@@ -66,7 +66,7 @@ const Login = () => {
       window.dispatchEvent(new Event("authChange"));
 
       // Final success toast with navigation
-      toast.success("Authentication successful !", {
+      toast.success("Login Done Successfully !", {
         toastId: "storage-start",
         autoClose: 1000,
         onClose: () => navigate("/profile"),
