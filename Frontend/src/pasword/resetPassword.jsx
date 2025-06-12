@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Eye, EyeOff } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { endpoints } from "../api/api_url";
 import axiosInstance from "../api/axiosInstance";
 
 export default function ResetPasswordPage() {
- const {
+  const {
     register,
     handleSubmit,
     watch,
@@ -19,19 +19,20 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const password = watch("password");
   const [passwordUpdated, setPasswordUpdated] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onSubmit = async (data) => {
     try {
       const response = await axiosInstance.post(`${endpoints.resetPassword}/${id}`, {
         password: data.password, confirmPassword: data.confirmPassword,
       });
-       console.log("Reset password response:", response.data);
+      console.log("Reset password response:", response.data);
       toast.success("Password updated successfully!");
-     if (response.data.status === 200) {
-      setPasswordUpdated(true);
-      setTimeout(() => navigate("/login"), 1500);
-     }
+      if (response.data.status === 200) {
+        setPasswordUpdated(true);
+        setTimeout(() => navigate("/login"), 1500);
+      }
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to update password. Try again."
@@ -76,9 +77,9 @@ export default function ResetPasswordPage() {
                 <label className="block text-[#D4D4D4] font-medium mb-2">
                   New Password <span className="text-[#FF5E5B]">*</span>
                 </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
+                <motion.div whileHover={{ scale: 1.01 }} className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     {...register("password", {
                       required: "This field is required",
                       minLength: {
@@ -93,6 +94,13 @@ export default function ResetPasswordPage() {
                         : "border-[#444444] focus:border-[#D4AF37]"
                     } focus:ring-2 focus:ring-[#D4AF37]/30 outline-none text-white placeholder-[#707070] transition-all`}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 text-[#B0B0B0] hover:text-[#D4AF37] transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </motion.div>
                 {errors.password && (
                   <motion.p
@@ -110,9 +118,9 @@ export default function ResetPasswordPage() {
                 <label className="block text-[#D4D4D4] font-medium mb-2">
                   Confirm Password <span className="text-[#FF5E5B]">*</span>
                 </label>
-                <motion.div whileHover={{ scale: 1.01 }}>
+                <motion.div whileHover={{ scale: 1.01 }} className="relative">
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     {...register("confirmPassword", {
                       required: "This field is required",
                       validate: (value) =>
@@ -125,6 +133,13 @@ export default function ResetPasswordPage() {
                         : "border-[#444444] focus:border-[#D4AF37]"
                     } focus:ring-2 focus:ring-[#D4AF37]/30 outline-none text-white placeholder-[#707070] transition-all`}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 text-[#B0B0B0] hover:text-[#D4AF37] transition-colors"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </motion.div>
                 {errors.confirmPassword && (
                   <motion.p
@@ -158,4 +173,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-
