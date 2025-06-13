@@ -163,14 +163,6 @@ const Profile = () => {
     e.onerror = null; 
   }}
             />
-            {/* ✏️ Edit Icon */}
-            <Link
-              to="/updateProfile"
-              className="absolute bottom-2 right-2 z-20 bg-[#D4AF37] hover:bg-[#FF5E5B] text-black p-1.5 rounded-full shadow-md transition duration-200"
-              title="Edit Profile"
-            >
-              <Pencil size={18} />
-            </Link>
           </div>
         </motion.div>
 
@@ -418,6 +410,14 @@ const Profile = () => {
                       <ul className="grid grid-cols-3 gap-x-3 gap-y-2 text-[#d1d1d1] text-lg list-inside">
                         {user.service.map((srv, idx) => (
                           <li key={idx}>{srv}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="mb-6">
+                      <h4 className="text-[#ff6d6aeb] font-light mb-5 text-xl">Events Offered</h4>
+                      <ul className="grid grid-cols-4 gap-x-2 gap-y-2 text-[#d1d1d1] text-lg list-inside">
+                        {user.category.map((cat, idx) => (
+                          <li key={idx}>{cat.category}</li>
                         ))}
                       </ul>
                     </div>

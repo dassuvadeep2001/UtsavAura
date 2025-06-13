@@ -15,5 +15,7 @@ export const endpoints = {
   resetPassword: "api/user/reset-password",
   createQuery: "api/query/createQuery",
   deleteProfile: "api/user/delete-profile",
+  userUpdateProfile: "api/user/update-profile",
+  managerUpdateProfile: "api/eventManager/updateEventManager",
 };
 export default base_url;

@@ -361,86 +361,101 @@ class UserController {
       }
 
       // For event manager
-      if (user.role === "eventManager") {
-        const result = await eventManagerModel.aggregate([
-          { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
+if (user.role === "eventManager") {
+  const result = await eventManagerModel.aggregate([
+    { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "eventManagerId",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    { $unwind: "$userDetails" },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "categoryDetails",
+      },
+    },
+    {
+      $lookup: {
+        from: "reviews",
+        let: { eventManagerId: "$eventManagerId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] },
+            },
+          },
           {
             $lookup: {
               from: "users",
-              localField: "eventManagerId",
+              localField: "userId",
               foreignField: "_id",
-              as: "userDetails",
+              as: "reviewer",
             },
           },
-          { $unwind: "$userDetails" },
-          {
-            $lookup: {
-              from: "reviews",
-              let: { eventManagerId: "$eventManagerId" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] },
-                  },
-                },
-                {
-                  $lookup: {
-                    from: "users",
-                    localField: "userId",
-                    foreignField: "_id",
-                    as: "reviewer",
-                  },
-                },
-                { $unwind: "$reviewer" },
-                {
-                  $project: {
-                    _id: 1,
-                    star: "$rating",
-                    review: 1,
-                    createdAt: 1,
-                    userId: 1,
-                    reviewerName: "$reviewer.name",
-                    reviewerEmail: "$reviewer.email",
-                  },
-                },
-              ],
-              as: "reviews",
-            },
-          },
+          { $unwind: "$reviewer" },
           {
             $project: {
-              _id: 0,
-              name: "$userDetails.name",
-              email: "$userDetails.email",
-              phone: "$userDetails.phone",
-              address: "$userDetails.address",
-              profileImage: "$userDetails.profileImage",
-              gender: 1,
-              age: 1,
-              service: 1,
-              description: 1,
-              previousWorkImages: 1,
-              role: "$userDetails.role",
-              reviews: 1, // Now includes reviewer name and email
-              isVerified: "$userDetails.isVerified",
+              _id: 1,
+              star: "$rating",
+              review: 1,
+              createdAt: 1,
+              userId: 1,
+              reviewerName: "$reviewer.name",
+              reviewerEmail: "$reviewer.email",
             },
           },
-        ]);
+        ],
+        as: "reviews",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        name: "$userDetails.name",
+        email: "$userDetails.email",
+        phone: "$userDetails.phone",
+        address: "$userDetails.address",
+        profileImage: "$userDetails.profileImage",
+        gender: 1,
+        age: 1,
+        service: 1,
+        description: 1,
+        previousWorkImages: 1,
+        category: {
+          $map: {
+            input: "$categoryDetails",
+            as: "cat",
+            in: { _id: "$$cat._id", category: "$$cat.category" }
+          }
+        },
+        role: "$userDetails.role",
+        reviews: 1,
+        isVerified: "$userDetails.isVerified",
+      },
+    },
+  ]);
 
-        if (!result.length) {
-          return res.status(404).json({
-            status: 404,
-            message: "Event Manager profile not found",
-            data: {},
-          });
-        }
+  if (!result.length) {
+    return res.status(404).json({
+      status: 404,
+      message: "Event Manager profile not found",
+      data: {},
+    });
+  }
 
-        return res.json({
-          status: 200,
-          message: "Event Manager profile fetched successfully",
-          data: result[0],
-        });
-      }
+  return res.json({
+    status: 200,
+    message: "Event Manager profile fetched successfully",
+    data: result[0],
+  });
+}
 
       // If role is not recognized
       return res.status(400).json({
@@ -467,8 +482,15 @@ class UserController {
           data: {},
         });
       }
-      const { name, email, phone, address, profileImage } = value;
+      const { name, email, phone, address } = value;
 
+      const userData = await userRepo.findById(user._id);
+let profileImage;
+if (req.file) {
+  profileImage = req.file.filename;
+} else {
+  profileImage = userData.profileImage; // keep old image if not uploading new one
+}
       const updatedData = await userRepo.updateById(user._id, {
         name,
         email,

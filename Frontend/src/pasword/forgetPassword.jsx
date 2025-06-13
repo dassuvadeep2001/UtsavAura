@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
             <Mail className="text-[#D4AF37]" size={28} />
           </motion.div>
           <h2 className="text-3xl font-bold text-white text-center drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
-            Forgot Your <span className="text-[#D4AF37]">Password?</span>
+            Forgot/Reset Your <span className="text-[#D4AF37]">Password?</span>
           </h2>
         </motion.div>
 

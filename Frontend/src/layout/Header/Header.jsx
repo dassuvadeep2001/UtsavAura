@@ -15,6 +15,9 @@ import {
   Gem as Ring,
   Baby,
   UtensilsCrossed as Utensils,
+  Settings,
+  UserPen,
+  User,
 } from "lucide-react";
 
 // Predefined category icons outside component to prevent recreation
@@ -341,7 +344,7 @@ const Navbar = () => {
               {/* Profile Dropdown */}
               <div
                 id="profile-dropdown"
-                className={`absolute right-0 mt-2 w-48 bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg py-1 z-50 ${
+                className={`absolute right-0 mt-2 w-[18rem] bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg py-4 z-50 ${
                   profileOpen
                     ? "opacity-100 translate-y-0 visible pointer-events-auto"
                     : "opacity-0 -translate-y-2 invisible pointer-events-none"
@@ -349,26 +352,25 @@ const Navbar = () => {
               >
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
                   onClick={() => setProfileOpen(false)}
                 >
-                  Profile
+                  <span> <User size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span>Profile
+                </Link>
+                 <Link
+                  to="/updateProfile"
+                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                 <span> <UserPen size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span> Update Profile
                 </Link>
                 <Link
                   to="/manageAccount"
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
                   onClick={() => setProfileOpen(false)}
                 >
-                  Manage Account
-                </Link>
-                <Link
-                  to="/updateProfile"
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  Update Profile
-                </Link>
-               
+                 <span> <Settings size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span> Manage Account
+                </Link> 
               </div>
             </div>
           ) : (

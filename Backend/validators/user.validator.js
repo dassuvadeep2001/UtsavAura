@@ -60,6 +60,9 @@ const updateUserValidator = joi.object({
         'string.min': 'Address must be at least 3 characters long',
         'string.max': 'Address must be at most 100 characters long',
     }),
+    profileImage: joi.string().optional().messages({
+        'string.base': 'Profile image must be a string',
+    }),
 });
 
 const resetPasswordValidator = joi.object({

@@ -118,7 +118,7 @@ const Login = () => {
     {
       icon: <Lock className="text-[#D4AF37]" size={48} />,
       title: "Multi-Factor Auth",
-      description: "Secure your account with 2FA and biometric authentication.",
+      description: "Secure account with 2FA and biometric authentication.",
       features: [
         "OTP & Email Verification",
         "Token-Based Access",
@@ -449,7 +449,7 @@ const Login = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="flex flex-col items-center text-center p-4 h-full"
+                  className="flex flex-col items-center text-center py-10 h-full"
                 >
                   <motion.div
                     whileHover={{ rotate: 5, scale: 1.05 }}

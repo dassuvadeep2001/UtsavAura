@@ -23,6 +23,7 @@ import VerifyEmail from "./pages/Authentication/verifyEmail";
 import Services from "./pages/Services/Services";
 import EventManagerDetails from "./pages/Services/EventManagerDetails";
 import ScrollToTop from "./layout/scroll";
+import UpdateProfile from "./pages/profile/updateProfile";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/updateProfile" element={<UpdateProfile />} />
           <Route path="/manageAccount" element={<ManageAccount />} />
           <Route path="/admin/users" element={<User />} />
           <Route path="/admin/queries" element={<Queries />} />
