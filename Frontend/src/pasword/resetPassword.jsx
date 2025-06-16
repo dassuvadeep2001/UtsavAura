@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { LockKeyhole, Eye, EyeOff } from "lucide-react";
+import { LockKeyhole, Eye, EyeOff, CheckCircle, AlertTriangle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { endpoints } from "../api/api_url";
@@ -12,8 +12,9 @@ export default function ResetPasswordPage() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
-  } = useForm();
+    formState: { errors, isValid },
+    trigger,
+  } = useForm({ mode: "onChange" });
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,10 +23,21 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Real-time validation triggers
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === "password" || name === "confirmPassword") {
+        trigger("confirmPassword");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, trigger]);
+
   const onSubmit = async (data) => {
     try {
       const response = await axiosInstance.post(`${endpoints.resetPassword}/${id}`, {
-        password: data.password, confirmPassword: data.confirmPassword,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
       });
       console.log("Reset password response:", response.data);
       toast.success("Password updated successfully!");
@@ -39,6 +51,50 @@ export default function ResetPasswordPage() {
       );
       setPasswordUpdated(false);
     }
+  };
+
+  // Validation messages that appear/disappear in real-time
+  const renderValidationMessage = (fieldName) => {
+    const value = watch(fieldName);
+    const error = errors[fieldName];
+
+    if (error) {
+      return (
+        <p className="mt-1 text-sm text-[#FF5E5B] flex items-center">
+          <AlertTriangle size={14} className="mr-1" />
+          {error.message}
+        </p>
+      );
+    }
+
+    if (value && value.length > 0) {
+      if (fieldName === "password" && value.length >= 6) {
+        return (
+          <div className="text-xs text-[#4ADE80] mt-2">
+            Password strength:{" "}
+            {value.length >= 12 &&
+            /[A-Z]/.test(value) &&
+            /\d/.test(value) &&
+            /[@$!%*?&]/.test(value)
+              ? "Strong"
+              : value.length >= 8
+              ? "Medium"
+              : "Weak"}
+          </div>
+        );
+      }
+
+      if (fieldName === "confirmPassword" && value === watch("password")) {
+        return (
+          <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+            <CheckCircle size={14} className="mr-1" />
+            Passwords match
+          </p>
+        );
+      }
+    }
+
+    return null;
   };
 
   return (
@@ -67,9 +123,19 @@ export default function ResetPasswordPage() {
         {/* Right Section */}
         <div className="w-full lg:w-1/2 p-8">
           {passwordUpdated ? (
-            <p className="text-green-400 text-center">
-              Password has been successfully updated!
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center space-y-4 p-6 bg-green-500/10 border border-green-500/30 rounded-xl"
+            >
+              <CheckCircle size={48} className="mx-auto text-green-400" />
+              <h3 className="text-xl font-bold text-white">
+                Password Updated Successfully!
+              </h3>
+              <p className="text-[#B0B0B0]">
+                You'll be redirected to login page shortly.
+              </p>
+            </motion.div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Password */}
@@ -81,17 +147,23 @@ export default function ResetPasswordPage() {
                   <input
                     type={showPassword ? "text" : "password"}
                     {...register("password", {
-                      required: "This field is required",
+                      required: "Password is required",
                       minLength: {
                         value: 6,
                         message: "Minimum 6 characters",
+                      },
+                      pattern: {
+                        value:
+                          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/,
+                        message:
+                          "Include uppercase, lowercase, number, and special character",
                       },
                     })}
                     placeholder="Enter new password"
                     className={`w-full px-4 py-3 rounded-lg bg-[#2A2A2A] border-2 ${
                       errors.password
                         ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#444444] focus:border-[#D4AF37]"
+                        : "border-[#444444] hover:border-[#D4AF37] focus:border-[#D4AF37]"
                     } focus:ring-2 focus:ring-[#D4AF37]/30 outline-none text-white placeholder-[#707070] transition-all`}
                   />
                   <button
@@ -102,15 +174,46 @@ export default function ResetPasswordPage() {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </motion.div>
-                {errors.password && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[#FF5E5B] text-sm mt-1"
-                  >
-                    {errors.password.message}
-                  </motion.p>
-                )}
+                {renderValidationMessage("password")}
+                <div className="text-xs text-[#B0B0B0] mt-2">
+                  <p>Password must contain:</p>
+                  <ul className="list-disc list-inside space-y-1 mt-1">
+                    <li
+                      className={
+                        watch("password")?.length >= 6 ? "text-[#4ADE80]" : ""
+                      }
+                    >
+                      At least 6 characters
+                    </li>
+                    <li
+                      className={
+                        /[A-Z]/.test(watch("password") || "")
+                          ? "text-[#4ADE80]"
+                          : ""
+                      }
+                    >
+                      One uppercase letter
+                    </li>
+                    <li
+                      className={
+                        /\d/.test(watch("password") || "")
+                          ? "text-[#4ADE80]"
+                          : ""
+                      }
+                    >
+                      One number
+                    </li>
+                    <li
+                      className={
+                        /[@$!%*?&]/.test(watch("password") || "")
+                          ? "text-[#4ADE80]"
+                          : ""
+                      }
+                    >
+                      One special character (@$!%*?&)
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               {/* Confirm Password */}
@@ -122,7 +225,7 @@ export default function ResetPasswordPage() {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     {...register("confirmPassword", {
-                      required: "This field is required",
+                      required: "Please confirm password",
                       validate: (value) =>
                         value === password || "Passwords do not match",
                     })}
@@ -130,7 +233,7 @@ export default function ResetPasswordPage() {
                     className={`w-full px-4 py-3 rounded-lg bg-[#2A2A2A] border-2 ${
                       errors.confirmPassword
                         ? "border-[#FF5E5B] focus:border-[#FF5E5B]"
-                        : "border-[#444444] focus:border-[#D4AF37]"
+                        : "border-[#444444] hover:border-[#D4AF37] focus:border-[#D4AF37]"
                     } focus:ring-2 focus:ring-[#D4AF37]/30 outline-none text-white placeholder-[#707070] transition-all`}
                   />
                   <button
@@ -141,30 +244,32 @@ export default function ResetPasswordPage() {
                     {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </motion.div>
-                {errors.confirmPassword && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[#FF5E5B] text-sm mt-1"
-                  >
-                    {errors.confirmPassword.message}
-                  </motion.p>
-                )}
+                {renderValidationMessage("confirmPassword")}
               </div>
 
               {/* Submit Button */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#FF5E5B] to-[#E74C3C] hover:from-[#E74C3C] hover:to-[#FF5E5B] text-white py-3 rounded-lg font-semibold shadow-lg transition-all duration-300"
+                disabled={!isValid}
+                className={`w-full bg-gradient-to-r from-[#FF5E5B] to-[#E74C3C] text-white py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 ${
+                  !isValid
+                    ? "opacity-70 cursor-not-allowed"
+                    : "hover:from-[#E74C3C] hover:to-[#FF5E5B]"
+                }`}
               >
                 Update Password
-              </button>
+              </motion.button>
             </form>
           )}
 
           <p className="mt-6 text-sm text-[#B0B0B0] text-center">
             Remember your password?{" "}
-            <a href="/login" className="text-[#D4AF37] hover:underline">
+            <a
+              href="/login"
+              className="text-[#D4AF37] hover:underline transition-colors"
+            >
               Go back to login
             </a>
           </p>

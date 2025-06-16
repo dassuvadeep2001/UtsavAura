@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   ChevronDown,
@@ -18,6 +19,12 @@ import {
   Settings,
   UserPen,
   User,
+  Menu,
+  X,
+  Home,
+  Info,
+  Contact,
+  ChevronRight,
 } from "lucide-react";
 
 // Predefined category icons outside component to prevent recreation
@@ -96,6 +103,7 @@ const Navbar = () => {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authState, setAuthState] = useState({
     isLoggedIn: false,
     user: null,
@@ -140,8 +148,6 @@ const Navbar = () => {
     setServicesOpen(false);
     setExploreOpen(false);
   };
-
-
 
   useEffect(() => {
     const checkAuthState = () => {
@@ -233,7 +239,6 @@ const Navbar = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-
   // Generate services items only when categories change
   const servicesItems = categories.map((cat) => ({
     to: `/services/${cat._id}`,
@@ -242,148 +247,391 @@ const Navbar = () => {
     desc: cat.descriptions || "Celebrate your moments with us.",
   }));
 
-  return (
-    <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/10 backdrop-blur-md border-b border-[#FFFFFF]/10"
-          : "bg-[#0D0D0D] border-b border-[#FFFFFF]/10"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-[#D4AF37] font-bold text-2xl transition-colors duration-200"
-          style={{ fontFamily: "'Cinzel', serif" }}
-        >
-          <Sparkles size={28} className="text-[#D4AF37]" />
-          UtsavAura
-        </Link>
+  // Enhanced mobile menu state
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-        <div
-          className="hidden md:flex items-center gap-8 text-[#FFFFFF] font-medium relative text-[18px]"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
-        >
-          <Link
-            to="/about"
-            className="hover:text-[#D4AF37] transition-colors duration-200"
-          >
-            About
-          </Link>
-          {authState.isLoggedIn && (
-            <DropdownMenu
-              id="services"
-              label="Services"
-              items={servicesItems}
-              isOpen={servicesOpen}
-              onToggle={() => {
-                setServicesOpen((prev) => !prev);
-                setExploreOpen(false);
-              }}
-              onClose={() => setExploreOpen(false)}
-              onItemClick={() => setServicesOpen(false)}
+  // Mobile menu items with proper submenu handling
+  const mobileMenuItems = [
+    {
+      to: "/",
+      label: "Home",
+      icon: <Home size={24} className="text-[#D4AF37]" />,
+    },
+    {
+      to: "/about",
+      label: "About",
+      icon: <Info size={24} className="text-[#D4AF37]" />,
+    },
+    ...(authState.isLoggedIn
+      ? [
+          {
+            label: "Services",
+            icon: <Gift size={24} className="text-[#D4AF37]" />,
+            items: servicesItems,
+            type: "submenu",
+          },
+        ]
+      : []),
+    {
+      label: "Explore",
+      icon: <BookOpen size={24} className="text-[#D4AF37]" />,
+      items: EXPLORE_ITEMS,
+      type: "submenu",
+    },
+    {
+      to: "/contact",
+      label: "Contact",
+      icon: <Contact size={24} className="text-[#D4AF37]" />,
+    },
+    authState.isLoggedIn
+      ? {
+          label: "Profile",
+          icon: authState.profileImage ? (
+            <img
+              src={authState.profileImage}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover"
             />
-          )}
+          ) : (
+            <User size={24} className="text-[#D4AF37]" />
+          ),
+          items: [
+            { to: "/profile", label: "My Profile", icon: <User size={20} /> },
+            {
+              to: "/updateProfile",
+              label: "Update Profile",
+              icon: <UserPen size={20} />,
+            },
+            {
+              to: "/manageAccount",
+              label: "Manage Account",
+              icon: <Settings size={20} />,
+            },
+          ],
+          type: "submenu",
+        }
+      : {
+          to: "/login",
+          label: "Login",
+          icon: <User size={24} className="text-[#D4AF37]" />,
+        },
+  ];
 
-          <DropdownMenu
-            id="explore"
-            label="Explore"
-            items={EXPLORE_ITEMS}
-            isOpen={exploreOpen}
-            onToggle={() => {
-              setExploreOpen((prev) => !prev);
-              setServicesOpen(false);
-            }}
-            onClose={() => setServicesOpen(false)}
-            onItemClick={() => setExploreOpen(false)}
-          />
+  // Function to handle submenu navigation
+  const handleSubmenuClick = (itemLabel) => {
+    setActiveSubmenu(activeSubmenu === itemLabel ? null : itemLabel);
+  };
 
+  // Function to close all menus
+  const closeAllMenus = () => {
+    setMobileMenuOpen(false);
+    setActiveSubmenu(null);
+  };
+
+  return (
+    <>
+      <nav
+        className={`fixed w-full z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/10 backdrop-blur-md border-b border-[#FFFFFF]/10"
+            : "bg-[#0D0D0D] border-b border-[#FFFFFF]/10"
+        }`}
+      >
+        {" "}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
           <Link
-            to="/contact"
-            className="hover:text-[#D4AF37] transition-colors duration-200"
+            to="/"
+            className="flex items-center gap-2 text-[#D4AF37] font-bold text-2xl transition-colors duration-200"
+            style={{ fontFamily: "'Cinzel', serif" }}
           >
-            Contact Us
+            <Sparkles size={28} className="text-[#D4AF37]" />
+            UtsavAura
           </Link>
 
-          {isLoading ? (
-            <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse"></div>
-          ) : authState.isLoggedIn ? (
-            <div className="relative">
-              <button
-                onClick={handleProfileClick}
-                className="rounded-full overflow-hidden w-10 h-10 border-2 border-[#D4AF37] hover:brightness-110 transition-all duration-200"
-                aria-label="Profile"
-                title={authState.user?.name || "Profile"}
-                id="profile-btn"
-              >
-                {authState.profileImage ? (
-                  <img
-                    src={
-                      authState.profileImage.startsWith("http") ||
-                      authState.profileImage.startsWith("blob:")
-                        ? authState.profileImage
-                        : `http://localhost:8001/uploads/${authState.profileImage}`
-                    }
-                    alt="Profile"
-                    className="w-full h-full object-cover cursor-pointer"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-[#D4AF37] text-black font-semibold text-lg">
-                    <img
-                      src="/src/assets/images/user.png"
-                      alt="Profile"
-                      className="cursor-pointer"
-                    />
-                  </div>
-                )}
-              </button>
-
-              {/* Profile Dropdown */}
-              <div
-                id="profile-dropdown"
-                className={`absolute right-0 mt-2 w-[18rem] bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg py-4 z-50 ${
-                  profileOpen
-                    ? "opacity-100 translate-y-0 visible pointer-events-auto"
-                    : "opacity-0 -translate-y-2 invisible pointer-events-none"
-                } transition-all duration-200`}
-              >
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  <span> <User size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span>Profile
-                </Link>
-                 <Link
-                  to="/updateProfile"
-                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
-                  onClick={() => setProfileOpen(false)}
-                >
-                 <span> <UserPen size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span> Update Profile
-                </Link>
-                <Link
-                  to="/manageAccount"
-                  className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
-                  onClick={() => setProfileOpen(false)}
-                >
-                 <span> <Settings size={20} className="inline-block mr-2 ml-1 text-[#D4AF37]" /></span> Manage Account
-                </Link> 
-              </div>
-            </div>
-          ) : (
+          <div
+            className="hidden md:flex items-center gap-8 text-[#FFFFFF] font-medium relative text-[18px]"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
             <Link
-              to="/login"
-              className="bg-[#FF5E5B] text-white px-4 py-2 rounded-full hover:bg-red-500 transition-all duration-200"
+              to="/about"
+              className="hover:text-[#D4AF37] transition-colors duration-200"
             >
-              Login / Register
+              About
             </Link>
-          )}
+            {authState.isLoggedIn && (
+              <DropdownMenu
+                id="services"
+                label="Services"
+                items={servicesItems}
+                isOpen={servicesOpen}
+                onToggle={() => {
+                  setServicesOpen((prev) => !prev);
+                  setExploreOpen(false);
+                }}
+                onClose={() => setExploreOpen(false)}
+                onItemClick={() => setServicesOpen(false)}
+              />
+            )}
+
+            <DropdownMenu
+              id="explore"
+              label="Explore"
+              items={EXPLORE_ITEMS}
+              isOpen={exploreOpen}
+              onToggle={() => {
+                setExploreOpen((prev) => !prev);
+                setServicesOpen(false);
+              }}
+              onClose={() => setServicesOpen(false)}
+              onItemClick={() => setExploreOpen(false)}
+            />
+
+            <Link
+              to="/contact"
+              className="hover:text-[#D4AF37] transition-colors duration-200"
+            >
+              Contact Us
+            </Link>
+
+            {isLoading ? (
+              <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse"></div>
+            ) : authState.isLoggedIn ? (
+              <div className="relative">
+                <button
+                  onClick={handleProfileClick}
+                  className="rounded-full overflow-hidden w-10 h-10 border-2 border-[#D4AF37] hover:brightness-110 transition-all duration-200"
+                  aria-label="Profile"
+                  title={authState.user?.name || "Profile"}
+                  id="profile-btn"
+                >
+                  {authState.profileImage ? (
+                    <img
+                      src={
+                        authState.profileImage.startsWith("http") ||
+                        authState.profileImage.startsWith("blob:")
+                          ? authState.profileImage
+                          : `http://localhost:8001/uploads/${authState.profileImage}`
+                      }
+                      alt="Profile"
+                      className="w-full h-full object-cover cursor-pointer"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full bg-[#D4AF37] text-black font-semibold text-lg">
+                      <img
+                        src="/src/assets/images/user.png"
+                        alt="Profile"
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  )}
+                </button>
+
+                {/* Profile Dropdown */}
+                <div
+                  id="profile-dropdown"
+                  className={`absolute right-0 mt-2 w-[18rem] bg-[#0D0D0D] border border-[#D4AF37]/20 rounded-lg shadow-lg py-4 z-50 ${
+                    profileOpen
+                      ? "opacity-100 translate-y-0 visible pointer-events-auto"
+                      : "opacity-0 -translate-y-2 invisible pointer-events-none"
+                  } transition-all duration-200`}
+                >
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <span>
+                      {" "}
+                      <User
+                        size={20}
+                        className="inline-block mr-2 ml-1 text-[#D4AF37]"
+                      />
+                    </span>
+                    Profile
+                  </Link>
+                  <Link
+                    to="/updateProfile"
+                    className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <span>
+                      {" "}
+                      <UserPen
+                        size={20}
+                        className="inline-block mr-2 ml-1 text-[#D4AF37]"
+                      />
+                    </span>{" "}
+                    Update Profile
+                  </Link>
+                  <Link
+                    to="/manageAccount"
+                    className="block px-4 py-2 text-lg text-white hover:bg-[#1A1A1A] hover:text-[#D4AF37] transition-colors"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <span>
+                      {" "}
+                      <Settings
+                        size={20}
+                        className="inline-block mr-2 ml-1 text-[#D4AF37]"
+                      />
+                    </span>{" "}
+                    Manage Account
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="bg-[#FF5E5B] text-white px-4 py-2 rounded-full hover:bg-red-500 transition-all duration-200"
+              >
+                Login / Register
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden text-[#D4AF37] text-2xl p-2"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </motion.button>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Enhanced Mobile Navigation Drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeAllMenus}
+            />
+
+            <motion.div
+              className="fixed bottom-0 left-0 right-0 bg-[#0D0D0D] rounded-t-3xl shadow-xl p-6 border-t border-[#D4AF37]/20 z-50 max-h-[80vh] overflow-y-auto"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            >
+              <div className="flex justify-between items-center mb-4 sticky top-0 bg-[#0D0D0D] pt-2 pb-4">
+                <h3 className="text-lg font-bold text-[#D4AF37]">
+                  {activeSubmenu ? activeSubmenu : "Menu"}
+                </h3>
+                <button
+                  onClick={closeAllMenus}
+                  className="p-2 text-[#D4AF37] hover:text-white"
+                >
+                  <X className="text-xl" />
+                </button>
+              </div>
+
+              {/* Main Menu */}
+              {!activeSubmenu && (
+                <ul className="grid grid-cols-2 gap-3">
+                  {mobileMenuItems.map((item, index) => (
+                    <motion.li
+                      key={index}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          onClick={closeAllMenus}
+                          className="flex flex-col items-center p-4 rounded-xl bg-[#1A1A1A] text-white hover:bg-[#D4AF37]/10 transition-colors"
+                        >
+                          <span className="text-2xl mb-2 text-[#D4AF37]">
+                            {item.icon}
+                          </span>
+                          <span className="text-sm">{item.label}</span>
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => handleSubmenuClick(item.label)}
+                          className="w-full flex flex-col items-center p-4 rounded-xl bg-[#1A1A1A] text-white hover:bg-[#D4AF37]/10 transition-colors"
+                        >
+                          <span className="text-2xl mb-2 text-[#D4AF37]">
+                            {item.icon}
+                          </span>
+                          <div className="flex items-center">
+                            <span className="text-sm mr-1">{item.label}</span>
+                            <ChevronRight
+                              size={16}
+                              className="text-[#D4AF37]"
+                            />
+                          </div>
+                        </button>
+                      )}
+                    </motion.li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Submenus */}
+              {activeSubmenu && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-2"
+                >
+                  <button
+                    onClick={() => setActiveSubmenu(null)}
+                    className="flex items-center text-[#D4AF37] mb-4"
+                  >
+                    <ChevronUp size={20} className="mr-1" />
+                    Back to Menu
+                  </button>
+
+                  {mobileMenuItems
+                    .find((item) => item.label === activeSubmenu)
+                    ?.items.map((subItem, index) => (
+                      <motion.div
+                        key={index}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                      >
+                        <Link
+                          to={subItem.to}
+                          onClick={closeAllMenus}
+                          className="flex items-center p-3 rounded-lg bg-[#1A1A1A] text-white hover:bg-[#D4AF37]/10 transition-colors"
+                        >
+                          <span className="text-[#D4AF37] mr-3">
+                            {subItem.icon}
+                          </span>
+                          <div>
+                            <div className="font-medium">
+                              {subItem.label || subItem.title}
+                            </div>
+                            {subItem.desc && (
+                              <div className="text-xs text-gray-400 mt-1">
+                                {subItem.desc}
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                </motion.div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Spacer for fixed navbar */}
+      <div className="h-20"></div>
+    </>
   );
 };
 
