@@ -4,7 +4,8 @@ import axiosInstance from "../../api/axiosInstance";
 import { endpoints, imageBaseUrl } from "../../api/api_url";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { EditIcon, Sparkles } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import { AlertTriangle, CheckCircle, EditIcon, Sparkles } from "lucide-react";
 
 const UpdateProfile = () => {
   const [role, setRole] = useState(""); // role will be fetched dynamically
@@ -70,6 +71,64 @@ const UpdateProfile = () => {
     fetchProfile();
   }, []);
 
+  // validation
+const renderValidationMessage = (fieldName) => {
+  const value = watch(fieldName);
+  const error = errors[fieldName];
+
+  if (error) {
+    return (
+      <p className="mt-1 text-sm text-[#FF5E5B] flex items-center">
+        <AlertTriangle size={14} className="mr-1" />
+        {error.message}
+      </p>
+    );
+  }
+
+  // Accept value if it's a non-empty string or a valid number (including 0)
+  const hasValue =
+    (typeof value === "string" && value.length > 0) ||
+    (typeof value === "number" && !isNaN(value));
+
+  if (hasValue) {
+    if (fieldName === "email" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return (
+        <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+          <CheckCircle size={14} className="mr-1" />
+          Valid email
+        </p>
+      );
+    }
+    if (fieldName === "phone" && value.replace(/\D/g, "").length === 10) {
+      return (
+        <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+          <CheckCircle size={14} className="mr-1" />
+          Valid phone number
+        </p>
+      );
+    }
+    if (fieldName === "age" && value >= 18 && value <= 60) {
+      return (
+        <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+          <CheckCircle size={14} className="mr-1" />
+          Age within valid range
+        </p>
+      );
+    }
+    if (fieldName === "description" && typeof value === "string" && value.length >= 50) {
+      return (
+        <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+          <CheckCircle size={14} className="mr-1" />
+          Minimum 50 characters reached
+        </p>
+      );
+    }
+    // ...other validations
+  }
+
+  return null;
+};
+
   const onSubmit = async (data) => {
     const formData = new FormData();
 
@@ -107,11 +166,22 @@ const UpdateProfile = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      if (res.status !== 200) {
+        toast.warning("Profile update failed. Please try again.", {
+          toastId: "profileUpdateError",
+          autoClose: 2000,
+        }
+        )
+      }
 
       console.log("Profile updated successfully:", res.data);
-      navigate("/profile");
+      toast.success("Profile updated successfully!", {
+        toastId: "profileUpdateSuccess",
+        autoClose: 2000,
+        onClose: () => navigate("/profile"),
+      });
     } catch (err) {
-      console.error("Error updating profile:", err);
+      
     }
   };
 
@@ -148,6 +218,18 @@ const UpdateProfile = () => {
 
 return (
   <div className="min-h-screen bg-[#0D0D0D] flex flex-col items-center justify-center px-4 relative overflow-hidden">
+     <ToastContainer
+            position="top-center"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
     {/* Background elements */}
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#D4AF37]/10 blur-[100px]"></div>
@@ -200,19 +282,71 @@ return (
           {role === "user" || role === "admin" ? (
             <InputField label="Name" register={register("name")} />
           ) : (
-            <InputField label="Event Manager Name" register={register("name")} />
-          )}
+            <InputField label="Event Manager Name" register={register("name", { required: "This field is required",minLength: {
+                              value: 2,
+                              message: "Name must be at least 2 characters",
+                            }, })} />
+            
+          )}{renderValidationMessage("name")}
 
           {/* Email */}
-          <InputField label="Email" type="email" register={register("email")} />
-
+          <InputField label="Email" type="email" register={register("email", { required: "This field is required",
+            pattern: {
+                              value: /^[^\s@]+@([^\s@]+\.)+(com|net)$/i,
+                              message: "Email must end with .com or .net",
+                            }, 
+                            validate: async (value) => {
+      // If the value is the same as the current email, it's valid
+      if (value === profileData.email) return true;
+      try {
+        const response = await axiosInstance.get(
+          endpoints.emailCheck,
+          {
+            params: { email: value }
+          }
+        );
+        if (response.data.exists === true) {
+          return "This email is already registered.";
+        }
+        return true;
+      } catch (error) {
+        console.error("Email validation error:", error);
+        return "Error checking email.";
+      }
+    }
+           })} />
+{renderValidationMessage("email")}
           {/* Phone & Address in Row */}
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <div className="flex-1">
-              <InputField label="Phone" register={register("phone")} />
+              <InputField label="Phone" register={register("phone", { required: "This field is required",
+                validate: {
+                              validLength: (value) => {
+                                const digits = value.replace(/\D/g, "");
+                                return (
+                                  digits.length === 10 ||
+                                  "Must be exactly 10 digits"
+                                );
+                              },
+                              validNumber: (value) => {
+                                const digits = value.replace(/\D/g, "");
+                                return (
+                                  /^\d+$/.test(digits) ||
+                                  "Must contain only numbers"
+                                );
+                              },
+                            },
+               })} />
+              {renderValidationMessage("phone")}
             </div>
             <div className="flex-1">
-              <InputField label="Address" register={register("address")} />
+              <InputField label="Address" register={register("address", { required: "This field is required",
+                 minLength: {
+                              value: 3,
+                              message: "Address must be at least 3 characters",
+                            },
+               })} />
+               {renderValidationMessage("address")}
             </div>
           </div>
 <div className="flex flex-col sm:flex-row gap-6 w-full items-stretch">
@@ -249,16 +383,28 @@ return (
               {/* Age & Gender */}
               <div className="flex flex-col sm:flex-row gap-4 w-full">
                 <div className="flex-1">
-                  <InputField label="Age" type="number" register={register("age")} />
+                  <InputField label="Age" type="number" register={register("age", { required: "This field is required",
+                    min: {
+                                value: 18,
+                                message: "Must be 18 years or over",
+                              },
+                              max: {
+                                value: 60,
+                                message: "Must be under 60 years",
+                              },
+                              valueAsNumber: true,
+                   })} />
+                  {renderValidationMessage("age")}
                 </div>
                 <div className="flex-1">
                   <SelectField
                     label="Gender"
                     options={["", "male", "female", "other"]}
                     labels={["Select Gender", "Male", "Female", "Other"]}
-                    register={register("gender")}
+                    register={register("gender", { required: "This field is required" })}
                     defaultValue={profileData.gender ? profileData.gender.toLowerCase() : ""}
                   />
+                   {renderValidationMessage("gender")}
                 </div>
               </div>
 
@@ -268,7 +414,9 @@ return (
                 options={serviceOptions}
                 selected={selectedServices}
                 setValue={setValue}
+                register={register("service", { required: "At least one service is required" })}
               />
+              {renderValidationMessage("service")}
 
               {/* Categories */}
               <CategoryCheckboxes
@@ -276,11 +424,25 @@ return (
                 categories={categories}
                 selected={selectedCategories}
                 setValue={setValue}
+                register={register("categoryId", { required: "At least one category is required" })}
               />
+              {renderValidationMessage("categoryId")}
 
               {/* Description */}
-              <TextAreaField label="Description" register={register("description")} rows={3} />
-
+              <TextAreaField label="Description" register={register("description", { required: "This field is required",
+                maxLength: {
+                            value: 1000,
+                            message:
+                              "Description must be less than 1000 characters",
+                          },
+                          minLength: {
+                            value: 50,
+                            message:
+                              "Description must be at least 50 characters",
+                          },
+               })} rows={3} />
+{renderValidationMessage("description")}
+    
               {/* Previous Work Images */}
               <MultipleImageUploadField
                 label="Previous Work Images"
@@ -427,13 +589,15 @@ return (
 
 // Helper Components
 // InputField.jsx
-const InputField = ({ label, type = "text", register }) => (
+const InputField = ({ label, type = "text", register, error }) => (
   <div className="mb-4">
     <label className="block text-[#B0B0B0] text-sm font-medium mb-2">{label}</label>
     <input
       type={type}
       {...register}
-      className="w-full px-4 py-3 rounded-xl bg-[#0D0D0D] border border-[#1F1F1F] text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37]/30 transition-all duration-200 placeholder:text-[#4A4A4A]"
+      className={`w-full px-4 py-3 rounded-xl bg-[#0D0D0D] border ${
+        error ? "border-[#FF5E5B]" : "border-[#1F1F1F]"
+      } text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37]/30 transition-all duration-200 placeholder:text-[#4A4A4A]`}
     />
   </div>
 );
@@ -469,7 +633,7 @@ const TextAreaField = ({ label, register, rows = 3 }) => (
 );
 
 // ServiceCheckboxes.jsx
-const ServiceCheckboxes = ({ label, options, selected = [], setValue }) => (
+const ServiceCheckboxes = ({ label, options, selected = [], setValue, register }) => (
   <div className="mb-6">
     <label className="block text-[#B0B0B0] text-sm font-medium mb-3">{label}</label>
     <div className="flex flex-wrap gap-3">
@@ -478,6 +642,7 @@ const ServiceCheckboxes = ({ label, options, selected = [], setValue }) => (
           <div className="relative flex items-center cursor-pointer">
             <input
               type="checkbox"
+              {...register}
               value={service}
               checked={selected.includes(service)}
               onChange={(e) => {
@@ -509,7 +674,7 @@ const ServiceCheckboxes = ({ label, options, selected = [], setValue }) => (
 );
 
 // CategoryCheckboxes.jsx
-const CategoryCheckboxes = ({ label, categories, selected = [], setValue }) => (
+const CategoryCheckboxes = ({ label, categories, selected = [], setValue, register }) => (
   <div className="mb-6">
     <label className="block text-[#B0B0B0] text-sm font-medium mb-3">{label}</label>
     <div className="flex flex-wrap gap-3">
@@ -518,6 +683,7 @@ const CategoryCheckboxes = ({ label, categories, selected = [], setValue }) => (
           <div className="relative flex items-center cursor-pointer">
             <input
               type="checkbox"
+              {...register}
               value={cat._id}
               checked={selected.includes(cat._id)}
               onChange={(e) => {
