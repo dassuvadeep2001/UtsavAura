@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import {
   RefreshCw,
   UserPlus,
@@ -12,6 +12,8 @@ import {
   Mail,
   Lightbulb,
   Smartphone,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import axiosInstance from "../../api/axiosInstance";
@@ -43,14 +45,8 @@ const UserRegister = () => {
       navigate("/profile");
     }
   }, [navigate]);
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm({
+
+  const methods = useForm({
     defaultValues: {
       name: "",
       email: "",
@@ -60,9 +56,40 @@ const UserRegister = () => {
       confirmPassword: "",
       captchaInput: "",
     },
+    mode: "onChange",
+    reValidateMode: "onChange",
   });
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid, isDirty },
+    reset,
+    setValue,
+    trigger,
+    control,
+  } = methods;
+
   const password = watch("password");
+  const phone = watch("phone");
+
+  // Real-time validation triggers
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      // Trigger validation when password or confirmPassword changes
+      if (name === "password" || name === "confirmPassword") {
+        trigger("confirmPassword");
+      }
+
+      // Trigger validation when phone number changes
+      if (name === "phone") {
+        trigger("phone");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, trigger]);
 
   const handleCaptchaRefresh = () => {
     const newCaptcha = generateCaptcha();
@@ -152,25 +179,67 @@ const UserRegister = () => {
     }
   };
 
-  const phoneValidation = {
-    required: "Phone number is required",
-    pattern: {
-      value: /^\d{10}$/,
-      message: "Phone must be 10 digits",
-    },
-  };
+  // Validation messages that appear/disappear in real-time
+  const renderValidationMessage = (fieldName) => {
+    const value = watch(fieldName);
+    const error = errors[fieldName];
 
-  const passwordValidation = {
-    required: "Password is required",
-    minLength: {
-      value: 8,
-      message: "Password must be at least 8 characters",
-    },
-    pattern: {
-      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
-      message:
-        "Must include uppercase, lowercase, number, and special character (!@#$%^&*)",
-    },
+    if (error) {
+      return (
+        <p className="mt-1 text-sm text-[#FF5E5B] flex items-center">
+          <AlertTriangle size={14} className="mr-1" />
+          {error.message}
+        </p>
+      );
+    }
+
+    if (value && value.length > 0) {
+      // Show success message for valid fields
+      if (fieldName === "email" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return (
+          <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+            <CheckCircle size={14} className="mr-1" />
+            Valid email
+          </p>
+        );
+      }
+
+      if (fieldName === "phone" && value.replace(/\D/g, "").length === 10) {
+        return (
+          <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+            <CheckCircle size={14} className="mr-1" />
+            Valid phone number
+          </p>
+        );
+      }
+
+      if (fieldName === "password" && value.length >= 8) {
+        return (
+          <div className="text-xs text-[#4ADE80] mt-2">
+            Password strength:{" "}
+            {value.length >= 12 &&
+            /[A-Z]/.test(value) &&
+            /\d/.test(value) &&
+            /[@$!%*?&]/.test(value)
+              ? "Strong"
+              : value.length >= 8
+              ? "Medium"
+              : "Weak"}
+          </div>
+        );
+      }
+
+      if (fieldName === "confirmPassword" && value === watch("password")) {
+        return (
+          <p className="mt-1 text-sm text-[#4ADE80] flex items-center">
+            <CheckCircle size={14} className="mr-1" />
+            Passwords match
+          </p>
+        );
+      }
+    }
+
+    return null;
   };
 
   const features = [
@@ -363,7 +432,13 @@ const UserRegister = () => {
                   <motion.div whileHover={{ scale: 1.01 }}>
                     <input
                       id="name"
-                      {...register("name", { required: "Name is required" })}
+                      {...register("name", {
+                        required: "Name is required",
+                        minLength: {
+                          value: 2,
+                          message: "Name must be at least 2 characters",
+                        },
+                      })}
                       placeholder="John Doe"
                       className={`w-full border-2 ${
                         errors.name
@@ -372,15 +447,7 @@ const UserRegister = () => {
                       } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                     />
                   </motion.div>
-                  {errors.name && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.name.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("name")}
                 </motion.div>
 
                 {/* Email */}
@@ -402,14 +469,27 @@ const UserRegister = () => {
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
-                          value:
-                            /^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)$/i,
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                           message: "Please enter a valid email address",
                         },
-                        validate: (value) =>
-                          value.endsWith(".com") ||
-                          value.endsWith(".net") ||
-                          "Email must end with .com or .net",
+                        validate: async (value) => {
+                          try {
+                            const response = await axiosInstance.get(
+                              endpoints.emailCheck,
+                              {
+                                params: { email: value },
+                              }
+                            );
+
+                            if (response.data.exists === true) {
+                              return "This email is already registered.";
+                            }
+                            return true;
+                          } catch (error) {
+                            console.error("Email validation error:", error);
+                            return "Error checking email.";
+                          }
+                        },
                       })}
                       placeholder="you@example.com"
                       className={`w-full border-2 ${
@@ -419,15 +499,7 @@ const UserRegister = () => {
                       } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                     />
                   </motion.div>
-                  {errors.email && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.email.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("email")}
                 </motion.div>
 
                 {/* Phone */}
@@ -446,7 +518,25 @@ const UserRegister = () => {
                   <motion.div whileHover={{ scale: 1.01 }}>
                     <input
                       id="phone"
-                      {...register("phone", phoneValidation)} // Already includes onChange
+                      {...register("phone", {
+                        required: "Phone number is required",
+                        validate: {
+                          validLength: (value) => {
+                            const digits = value.replace(/\D/g, "");
+                            return (
+                              digits.length === 10 ||
+                              "Must be exactly 10 digits"
+                            );
+                          },
+                          validNumber: (value) => {
+                            const digits = value.replace(/\D/g, "");
+                            return (
+                              /^\d+$/.test(digits) ||
+                              "Must contain only numbers"
+                            );
+                          },
+                        },
+                      })}
                       placeholder="1234567890"
                       maxLength={10}
                       onChange={(e) => {
@@ -460,18 +550,10 @@ const UserRegister = () => {
                       } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                     />
                   </motion.div>
-                  {errors.phone && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.phone.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("phone")}
                 </motion.div>
 
-                {/* Address (City Only) */}
+                {/* Address */}
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -506,15 +588,7 @@ const UserRegister = () => {
                       } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                     />
                   </motion.div>
-                  {errors.address && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.address.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("address")}
                 </motion.div>
 
                 {/* Password */}
@@ -533,7 +607,19 @@ const UserRegister = () => {
                   <motion.div whileHover={{ scale: 1.01 }} className="relative">
                     <input
                       id="password"
-                      {...register("password", passwordValidation)}
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 8,
+                          message: "Password must be at least 8 characters",
+                        },
+                        pattern: {
+                          value:
+                            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
+                          message:
+                            "Must include uppercase, lowercase, number, and special character (!@#$%^&*)",
+                        },
+                      })}
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       className={`w-full border-2 ${
@@ -552,15 +638,46 @@ const UserRegister = () => {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </motion.button>
                   </motion.div>
-                  {errors.password && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.password.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("password")}
+                  <div className="text-xs text-[#B0B0B0] mt-2">
+                    <p>Password must contain:</p>
+                    <ul className="list-disc list-inside space-y-1 mt-1">
+                      <li
+                        className={
+                          watch("password")?.length >= 8 ? "text-[#4ADE80]" : ""
+                        }
+                      >
+                        At least 8 characters
+                      </li>
+                      <li
+                        className={
+                          /[A-Z]/.test(watch("password") || "")
+                            ? "text-[#4ADE80]"
+                            : ""
+                        }
+                      >
+                        One uppercase letter
+                      </li>
+                      <li
+                        className={
+                          /\d/.test(watch("password") || "")
+                            ? "text-[#4ADE80]"
+                            : ""
+                        }
+                      >
+                        One number
+                      </li>
+                      <li
+                        className={
+                          /[!@#$%^&*]/.test(watch("password") || "")
+                            ? "text-[#4ADE80]"
+                            : ""
+                        }
+                      >
+                        One special character
+                      </li>
+                    </ul>
+                  </div>
                 </motion.div>
 
                 {/* Confirm Password */}
@@ -608,15 +725,7 @@ const UserRegister = () => {
                       )}
                     </motion.button>
                   </motion.div>
-                  {errors.confirmPassword && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="mt-1 text-sm text-[#FF5E5B]"
-                    >
-                      {errors.confirmPassword.message}
-                    </motion.p>
-                  )}
+                  {renderValidationMessage("confirmPassword")}
                 </motion.div>
 
                 {/* Profile Image Upload */}
@@ -731,15 +840,7 @@ const UserRegister = () => {
                         } px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-[#D4AF37]/30 outline-none transition-all bg-[#0D0D0D] text-[#FFFFFF]`}
                       />
                     </motion.div>
-                    {errors.captchaInput && (
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-1 text-sm text-[#FF5E5B]"
-                      >
-                        {errors.captchaInput.message}
-                      </motion.p>
-                    )}
+                    {renderValidationMessage("captchaInput")}
                   </div>
                 </motion.div>
               </div>
