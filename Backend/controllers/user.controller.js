@@ -361,101 +361,101 @@ class UserController {
       }
 
       // For event manager
-if (user.role === "eventManager") {
-  const result = await eventManagerModel.aggregate([
-    { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
-    {
-      $lookup: {
-        from: "users",
-        localField: "eventManagerId",
-        foreignField: "_id",
-        as: "userDetails",
-      },
-    },
-    { $unwind: "$userDetails" },
-    {
-      $lookup: {
-        from: "categories",
-        localField: "categoryId",
-        foreignField: "_id",
-        as: "categoryDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "reviews",
-        let: { eventManagerId: "$eventManagerId" },
-        pipeline: [
+      if (user.role === "eventManager") {
+        const result = await eventManagerModel.aggregate([
+          { $match: { eventManagerId: new mongoose.Types.ObjectId(user._id) } },
           {
-            $match: {
-              $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] },
+            $lookup: {
+              from: "users",
+              localField: "eventManagerId",
+              foreignField: "_id",
+              as: "userDetails",
+            },
+          },
+          { $unwind: "$userDetails" },
+          {
+            $lookup: {
+              from: "categories",
+              localField: "categoryId",
+              foreignField: "_id",
+              as: "categoryDetails",
             },
           },
           {
             $lookup: {
-              from: "users",
-              localField: "userId",
-              foreignField: "_id",
-              as: "reviewer",
+              from: "reviews",
+              let: { eventManagerId: "$eventManagerId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$eventManagerId", "$$eventManagerId"] },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "reviewer",
+                  },
+                },
+                { $unwind: "$reviewer" },
+                {
+                  $project: {
+                    _id: 1,
+                    star: "$rating",
+                    review: 1,
+                    createdAt: 1,
+                    userId: 1,
+                    reviewerName: "$reviewer.name",
+                    reviewerEmail: "$reviewer.email",
+                  },
+                },
+              ],
+              as: "reviews",
             },
           },
-          { $unwind: "$reviewer" },
           {
             $project: {
-              _id: 1,
-              star: "$rating",
-              review: 1,
-              createdAt: 1,
-              userId: 1,
-              reviewerName: "$reviewer.name",
-              reviewerEmail: "$reviewer.email",
+              _id: 0,
+              name: "$userDetails.name",
+              email: "$userDetails.email",
+              phone: "$userDetails.phone",
+              address: "$userDetails.address",
+              profileImage: "$userDetails.profileImage",
+              gender: 1,
+              age: 1,
+              service: 1,
+              description: 1,
+              previousWorkImages: 1,
+              category: {
+                $map: {
+                  input: "$categoryDetails",
+                  as: "cat",
+                  in: { _id: "$$cat._id", category: "$$cat.category" },
+                },
+              },
+              role: "$userDetails.role",
+              reviews: 1,
+              isVerified: "$userDetails.isVerified",
             },
           },
-        ],
-        as: "reviews",
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        name: "$userDetails.name",
-        email: "$userDetails.email",
-        phone: "$userDetails.phone",
-        address: "$userDetails.address",
-        profileImage: "$userDetails.profileImage",
-        gender: 1,
-        age: 1,
-        service: 1,
-        description: 1,
-        previousWorkImages: 1,
-        category: {
-          $map: {
-            input: "$categoryDetails",
-            as: "cat",
-            in: { _id: "$$cat._id", category: "$$cat.category" }
-          }
-        },
-        role: "$userDetails.role",
-        reviews: 1,
-        isVerified: "$userDetails.isVerified",
-      },
-    },
-  ]);
+        ]);
 
-  if (!result.length) {
-    return res.status(404).json({
-      status: 404,
-      message: "Event Manager profile not found",
-      data: {},
-    });
-  }
+        if (!result.length) {
+          return res.status(404).json({
+            status: 404,
+            message: "Event Manager profile not found",
+            data: {},
+          });
+        }
 
-  return res.json({
-    status: 200,
-    message: "Event Manager profile fetched successfully",
-    data: result[0],
-  });
-}
+        return res.json({
+          status: 200,
+          message: "Event Manager profile fetched successfully",
+          data: result[0],
+        });
+      }
 
       // If role is not recognized
       return res.status(400).json({
@@ -485,12 +485,12 @@ if (user.role === "eventManager") {
       const { name, email, phone, address } = value;
 
       const userData = await userRepo.findById(user._id);
-let profileImage;
-if (req.file) {
-  profileImage = req.file.filename;
-} else {
-  profileImage = userData.profileImage; // keep old image if not uploading new one
-}
+      let profileImage;
+      if (req.file) {
+        profileImage = req.file.filename;
+      } else {
+        profileImage = userData.profileImage; // keep old image if not uploading new one
+      }
       const updatedData = await userRepo.updateById(user._id, {
         name,
         email,
@@ -511,41 +511,41 @@ if (req.file) {
     }
   }
 
- async deleteProfile(req, res) {
-  try {
-    const user = req.user;
+  async deleteProfile(req, res) {
+    try {
+      const user = req.user;
 
-    // Fetch user data to get the profile image filename
-    const userData = await userRepo.findById(user._id);
-    if (userData && userData.profileImage) {
-      const imagePath = path.join(
-        process.cwd(),
-        "uploads",
-        userData.profileImage
-      );
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+      // Fetch user data to get the profile image filename
+      const userData = await userRepo.findById(user._id);
+      if (userData && userData.profileImage) {
+        const imagePath = path.join(
+          process.cwd(),
+          "uploads",
+          userData.profileImage
+        );
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
       }
+
+      // If user is an event manager, delete from eventManagerModel as well
+      if (user.role === "eventManager") {
+        await eventManagerModel.deleteOne({ eventManagerId: user._id });
+      }
+
+      await userRepo.deleteById(user._id);
+
+      return res.json({
+        status: 200,
+        message: "Profile deleted successfully",
+        data: {},
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ status: 500, message: error.message, data: {} });
     }
-
-    // If user is an event manager, delete from eventManagerModel as well
-    if (user.role === "eventManager") {
-      await eventManagerModel.deleteOne({ eventManagerId: user._id });
-    }
-
-    await userRepo.deleteById(user._id);
-
-    return res.json({
-      status: 200,
-      message: "Profile deleted successfully",
-      data: {},
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: 500, message: error.message, data: {} });
   }
-}
   async getAllUsers(req, res) {
     try {
       const users = await userModel.find({
@@ -591,6 +591,20 @@ if (req.file) {
         message: "Internal server error",
         exists: false,
       });
+    }
+  }
+  //admin delete user
+  async deleteUserByAdmin(req, res) {
+    try {
+      const { id } = req.params;
+      const deletedUser = await userModel.findByIdAndDelete(id);
+      if (!deletedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ message: "User deleted successfully" });
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      res.status(500).json({ message: "Server error" });
     }
   }
 }
