@@ -698,7 +698,7 @@ content.accentColor = "#FF5E5B";
                       src={`http://localhost:8001/uploads/${manager.profileImage}`}
                       alt={manager.name}
                       className="w-full h-full object-cover transition-transform duration-500"
-                      lassName="w-45 h-45 rounded-full shadow-xl object-cover relative z-10"
+                     
                 onError={(e) => {
     e.target.src = '/src/assets/images/user.png';
     e.onerror = null; 

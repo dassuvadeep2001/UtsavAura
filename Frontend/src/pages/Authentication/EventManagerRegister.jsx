@@ -428,9 +428,9 @@ export function EventManagerRegister() {
             transition={{ delay: 0.2 }}
             className="max-w-5xl mx-auto mb-8"
           >
-            <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="flex items-center justify-center gap-4 mb-4 flex-col md:flex-row sm:flex-row">
               <ClipboardList size={36} className="text-[#D4AF37]" />
-              <h1 className="text-3xl md:text-3xl font-bold text-center bg-gradient-to-r from-[#D4AF37] to-[#F1C84C] bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-3xl font-bold text-center bg-gradient-to-r from-[#D4AF37] to-[#F1C84C] bg-clip-text text-transparent flex items-center justify-center ">
                 Event Manager Registration
               </h1>
             </div>
@@ -1146,29 +1146,18 @@ export function EventManagerRegister() {
                           You agree to maintain professional standards when
                           interacting with clients through our platform.
                         </p>
+
                         <p>
-                          <strong>4. Payments</strong>
-                          <br />
-                          UtsavAura will process payments and disburse funds
-                          according to our payment schedule, minus applicable
-                          fees.
-                        </p>
-                        <p>
-                          <strong>5. Cancellations</strong>
+                          <strong>4. Cancellations</strong>
                           <br />
                           Cancellation policies must be clearly communicated to
                           clients in advance.
                         </p>
                         <p>
-                          <strong>6. Data Privacy</strong>
+                          <strong>5. Data Privacy</strong>
                           <br />
                           You agree to handle client data responsibly and in
                           compliance with privacy laws.
-                        </p>
-                        <p>
-                          <strong>7. Platform Fees</strong>
-                          <br />A service fee of 15% will be applied to all
-                          bookings made through the platform.
                         </p>
                       </div>
                     </div>

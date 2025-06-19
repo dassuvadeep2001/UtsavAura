@@ -2,19 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
- 
   ChevronRight,
   Star,
- 
   Zap,
   Award,
   Smile,
-  
   Check,
   Heart,
   Facebook,
   Instagram,
-  
   Globe,
   Building,
   Utensils,
@@ -336,7 +332,7 @@ const Home = () => {
           Your browser does not support the video tag.
         </video>
 
-        <div className="max-w-6xl mx-auto px-6 text-center relative z-20">
+        <div className="max-w-6xl mx-auto px-6 text-center relative z-20 flex flex-col items-center justify-center h-full">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -374,24 +370,24 @@ const Home = () => {
             bespoke event planning and flawless execution.
           </motion.p>
 
-        {!localStorage.getItem('token') && (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.6 }}
-    className="flex flex-col sm:flex-row gap-4 justify-center"
-  >
-    <motion.a
-      href="/choose-user"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <button className="px-8 py-3.5 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] text-white cursor-pointer font-semibold rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center">
-        Register Now <ChevronRight className="ml-2" size={18} />
-      </button>
-    </motion.a>
-  </motion.div>
-)}
+          {!localStorage.getItem("token") && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <motion.a
+                href="/choose-user"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button className="px-8 py-3.5 bg-gradient-to-r from-[#FF5E5B] to-[#D4AF37] text-white cursor-pointer font-semibold rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center">
+                  Register Now <ChevronRight className="ml-2" size={18} />
+                </button>
+              </motion.a>
+            </motion.div>
+          )}
         </div>
 
         <motion.div
@@ -962,7 +958,7 @@ const Home = () => {
           ))}
         </div>
 
-        <div className="max-w-6xl mx-auto text-center relative z-10">
+        <div className="max-w-6xl mx-auto text-center relative z-10 flex flex-col items-center justify-center ">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -976,81 +972,81 @@ const Home = () => {
             </span>
           </motion.div>
 
-         {localStorage.getItem('token') ? (
-  // If token exists: Show welcome message without the button
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay: 0.2, duration: 0.8 }}
-    className="text-center"
-  >
-    <motion.h2
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.2, duration: 0.8 }}
-      className="text-4xl md:text-5xl font-bold text-white mb-6"
-    >
-      Welcome to <span className="text-[#D4AF37]">UtsavAura</span>
-    </motion.h2>
+          {localStorage.getItem("token") ? (
+            // If token exists: Show welcome message without the button
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="text-center"
+            >
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="text-4xl md:text-5xl font-bold text-white mb-6"
+              >
+                Welcome to <span className="text-[#D4AF37]">UtsavAura</span>
+              </motion.h2>
 
-    <motion.p
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.4, duration: 0.8 }}
-      className="text-xl text-[#B0B0B0] max-w-3xl mx-auto mb-10"
-    >
-      Explore our services and start planning unforgettable events with ease.
-    </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="text-xl text-[#B0B0B0] max-w-3xl mx-auto mb-10"
+              >
+                Explore our services and start planning unforgettable events
+                with ease.
+              </motion.p>
+            </motion.div>
+          ) : (
+            // If no token: Show original Get Started section
+            <>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="text-4xl md:text-5xl font-bold text-white mb-6"
+              >
+                Begin Your <span className="text-[#D4AF37]">Extraordinary</span>{" "}
+                Journey
+              </motion.h2>
 
-   
-   
-  </motion.div>
-) : (
-  // If no token: Show original Get Started section
-  <>
-    <motion.h2
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.2, duration: 0.8 }}
-      className="text-4xl md:text-5xl font-bold text-white mb-6"
-    >
-      Begin Your <span className="text-[#D4AF37]">Extraordinary</span> Journey
-    </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="text-xl text-[#B0B0B0] max-w-3xl mx-auto mb-10"
+              >
+                Join thousands of event professionals and enthusiasts who trust
+                UtsavAura to transform their visions into breathtaking
+                realities.
+              </motion.p>
 
-    <motion.p
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.4, duration: 0.8 }}
-      className="text-xl text-[#B0B0B0] max-w-3xl mx-auto mb-10"
-    >
-      Join thousands of event professionals and enthusiasts who trust UtsavAura
-      to transform their visions into breathtaking realities.
-    </motion.p>
-
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.6, duration: 0.8 }}
-      className="flex flex-col sm:flex-row gap-4 justify-center"
-    >
-      <motion.a
-        href="/login"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <button className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white cursor-pointer font-semibold rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center">
-          Get Started <ChevronRight className="ml-2" size={20} />
-        </button>
-      </motion.a>
-    </motion.div>
-  </>
-)}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center"
+              >
+                <motion.a
+                  href="/login"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <button className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white cursor-pointer font-semibold rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center">
+                    Get Started <ChevronRight className="ml-2" size={20} />
+                  </button>
+                </motion.a>
+              </motion.div>
+            </>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}

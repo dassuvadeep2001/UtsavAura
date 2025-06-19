@@ -16,30 +16,34 @@ const About = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
-   const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('http://localhost:8001/api/review/getReviews');
+        const response = await fetch(
+          "http://localhost:8001/api/review/getReviews"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        
+
         // Extract the reviews array from the response
         const reviewsData = result.data || [];
-        
+
         if (!Array.isArray(reviewsData)) {
-          throw new Error('Expected an array of reviews but got something else');
+          throw new Error(
+            "Expected an array of reviews but got something else"
+          );
         }
-        
+
         setReviews(reviewsData);
         setLoading(false);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error("Fetch error:", err);
         setError(err.message);
         setLoading(false);
         setReviews([]);
@@ -61,7 +65,6 @@ const About = () => {
     return <div className="text-center py-12">No testimonials available</div>;
   }
 
-
   return (
     <div className="bg-[#0D0D0D] text-[#FFFFFF] overflow-hidden">
       {/* Hero Section with Video - Luxury Midnight Theme */}
@@ -78,7 +81,7 @@ const About = () => {
           Your browser does not support the video tag.
         </video>
 
-        <div className="max-w-6xl mx-auto px-6 text-center relative z-20">
+        <div className="max-w-6xl mx-auto px-6 text-center relative z-20 flex flex-col items-center justify-center h-full">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -579,50 +582,50 @@ const About = () => {
             </motion.p>
           </motion.div>
 
-       <div className="grid md:grid-cols-3 gap-8">
-      {reviews.map((testimonial, i) => (
-        <motion.div
-          key={i}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeIn}
-          transition={{ delay: i * 0.2 }}
-          className="bg-[#1A1A1A] p-8 rounded-2xl shadow-lg border border-[#2A2A2A] hover:shadow-xl transition"
-        >
-          <div className="flex items-center mb-6">
-            {[...Array(testimonial.rating || 5)].map((_, idx) => (
-              <Star
-                key={idx}
-                size={20}
-                className="text-[#D4AF37]"
-                fill="currentColor"
-              />
+          <div className="grid md:grid-cols-3 gap-8">
+            {reviews.map((testimonial, i) => (
+              <motion.div
+                key={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={fadeIn}
+                transition={{ delay: i * 0.2 }}
+                className="bg-[#1A1A1A] p-8 rounded-2xl shadow-lg border border-[#2A2A2A] hover:shadow-xl transition"
+              >
+                <div className="flex items-center mb-6">
+                  {[...Array(testimonial.rating || 5)].map((_, idx) => (
+                    <Star
+                      key={idx}
+                      size={20}
+                      className="text-[#D4AF37]"
+                      fill="currentColor"
+                    />
+                  ))}
+                </div>
+                <p className="italic text-[#B0B0B0] mb-8 text-lg leading-relaxed">
+                  "{testimonial.review}"
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 rounded-full bg-[#2A2A2A] overflow-hidden mr-4">
+                    <img
+                      src={`http://localhost:8001/uploads/${testimonial.ProfileImage}`}
+                      alt={testimonial.Name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#FFFFFF]">
+                      {testimonial.Name}
+                    </p>
+                    <p className="text-sm text-[#B0B0B0]">
+                      Managed by: {testimonial.EventManagerName}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
-          <p className="italic text-[#B0B0B0] mb-8 text-lg leading-relaxed">
-            "{testimonial.review}"
-          </p>
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-full bg-[#2A2A2A] overflow-hidden mr-4">
-              <img
-                src={`http://localhost:8001/uploads/${testimonial.ProfileImage}`}
-                alt={testimonial.Name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <p className="font-bold text-[#FFFFFF]">
-                {testimonial.Name}
-              </p>
-              <p className="text-sm text-[#B0B0B0]">
-                Managed by: {testimonial.EventManagerName}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
         </div>
       </section>
 
