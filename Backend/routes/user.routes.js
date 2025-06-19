@@ -14,4 +14,5 @@ router.put('/update-profile', auth.authenticate, fileUpload.upload().single('pro
 router.delete('/delete-profile', auth.authenticate, authController.deleteProfile);
 router.get('/getAllUsers', auth.adminAuthenticate, authController.getAllUsers);
 router.get('/emailCheck', authController.getUserByEmail);
+router.delete('/delete-user/:id', auth.adminAuthenticate, authController.deleteUserByAdmin);
 module.exports = router;

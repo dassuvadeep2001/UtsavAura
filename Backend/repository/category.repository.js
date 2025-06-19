@@ -14,6 +14,16 @@ class CategoryRepository {
   async getAllCategories() {
     return await categoryModel.find({ isDeleted: false });
   }
+  async deleteCategoryById(id) {
+    return await categoryModel.findByIdAndDelete(id);
+  }
+  async updateCategoryById(id, data) {
+    return await categoryModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true }
+    );
+  }
 
   async getEventManagersByCategory(categoryId) {
     return await eventManagerModel.aggregate([
