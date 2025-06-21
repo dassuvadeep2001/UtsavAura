@@ -279,7 +279,7 @@ const UserRegister = () => {
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="hidden lg:flex flex-col w-[30%] p-8 bg-[#0D0D0D] text-[#FFFFFF] relative overflow-hidden border-r border-[#333333]"
+        className="hidden lg:flex flex-col w-[30%] px-4 py-15 bg-[#0D0D0D] text-[#FFFFFF] relative overflow-hidden border-r border-[#333333]"
       >
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -383,7 +383,7 @@ const UserRegister = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full lg:w-[70%] overflow-y-auto py-8 px-4 sm:px-8"
+        className="w-full lg:w-[70%] overflow-y-auto py-20 px-4"
       >
         <motion.div
           whileHover={{ scale: 1.005 }}

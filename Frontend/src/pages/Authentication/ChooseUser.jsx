@@ -14,7 +14,7 @@ const ChooseUserPage = () => {
     }
   }, [navigate]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] py-20 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div

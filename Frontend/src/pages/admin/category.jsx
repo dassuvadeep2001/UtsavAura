@@ -58,6 +58,7 @@ const Category = () => {
     setValue("category", category.category);
     setValue("descriptions", category.descriptions);
     setEditingId(category._id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = (id) => {
@@ -80,7 +81,7 @@ const Category = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] px-4 py-10 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] px-4 py-20 text-white overflow-hidden relative">
       <ToastContainer position="top-center" theme="dark" />
       {/* Main Container */}
       <div className="max-w-6xl mx-auto">
@@ -90,7 +91,7 @@ const Category = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-15"
         >
           <div className="w-60 flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
             <Sparkles className="text-[#D4AF37] mr-2" size={18} />

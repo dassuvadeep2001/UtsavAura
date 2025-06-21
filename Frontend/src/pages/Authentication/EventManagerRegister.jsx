@@ -415,7 +415,7 @@ export function EventManagerRegister() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full lg:w-[70%] overflow-y-auto py-12 px-6 md:px-16"
+        className="w-full lg:w-[70%] overflow-y-auto py-20 px-6"
       >
         <motion.div
           whileHover={{ scale: 1.005 }}

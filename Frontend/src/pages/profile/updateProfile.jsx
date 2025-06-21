@@ -217,7 +217,7 @@ const renderValidationMessage = (fieldName) => {
     );
 
 return (
-  <div className="min-h-screen bg-[#0D0D0D] flex flex-col items-center justify-center px-4 relative overflow-hidden">
+  <div className="min-h-screen bg-[#0D0D0D] flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
      <ToastContainer
             position="top-center"
             autoClose={2000}

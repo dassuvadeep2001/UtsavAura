@@ -150,7 +150,7 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] px-4 py-12 sm:py-16">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0D0D0D] px-4 py-20">
       <ToastContainer
         position="top-center"
         autoClose={5000}
