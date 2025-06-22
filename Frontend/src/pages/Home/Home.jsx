@@ -407,11 +407,11 @@ const Home = () => {
 
       {/* Event Types Section */}
 
-      <section className="py-24 px-6 bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] relative overflow-hidden">
+      <section className="py-16 md:py-24 px-6 bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] relative overflow-hidden">
         <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-3xl"></div>
         <div className="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-[#FF5E5B]/10 blur-3xl"></div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
               One <span className="text-[#D4AF37]">Event</span> Platform
@@ -444,18 +444,18 @@ const Home = () => {
           >
             {eventTypes.map((event, index) => (
               <SwiperSlide key={index}>
-                <div className="slide-card relative w-[400px] h-[300px] mx-auto rounded-xl overflow-hidden shadow-lg transition-all duration-500">
+                <div className="slide-card relative md:w-[400px] md:h-[300px] w-[300px] h-[200px] mx-auto rounded-xl overflow-hidden shadow-lg transition-all duration-500">
                   <img
                     src={event.image}
                     alt={event.title}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20 z-10"></div>
-                  <div className="relative z-20 h-full flex flex-col mt-20 items-center justify-center p-6 text-center">
-                    <h3 className="text-xl md:text-2xl font-bold text-[#D4AF37] mb-2">
+                  <div className="relative z-20 h-full flex flex-col mt-10 md:mt-20 justify-center md:p-6 p-15 text-center items-center">
+                    <h3 className="text-xl md:text-2xl font-bold text-[#D4AF37] mb-2 flex justify-center text-center items-center">
                       {event.title}
                     </h3>
-                    <p className="text-sm text-white">{event.description}</p>
+                    <p className="md:text-sm text-xs text-white flex justify-center text-center items-center">{event.description}</p>
                   </div>
                 </div>
               </SwiperSlide>
@@ -553,7 +553,7 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
               Revolutionizing Celebrations:{" "}
               <span className="text-[#D4AF37]">Tradition</span>{" "}
               <span className="text-white">Meets</span>{" "}
