@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
 import { Link, useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
 
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
@@ -37,6 +38,7 @@ const UserRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -108,7 +110,6 @@ const UserRegister = () => {
       reader.readAsDataURL(file);
     }
   };
-
   const onSubmit = async (data) => {
     if (data.captchaInput !== captcha) {
       alert("Invalid CAPTCHA. Please try again.");
@@ -139,20 +140,45 @@ const UserRegister = () => {
         formData.append("profileImage", data.profileImage);
       }
 
-      const response = await axiosInstance.post(endpoints.register, formData, {
+      // Step 1: Create user in backend
+      const userRes = await axiosInstance.post(endpoints.register, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      if (response.data.status !== 201) {
-        throw new Error(response.data.message || "Registration failed");
+      if (userRes.data.status !== 201) {
+        throw new Error(userRes.data.message || "Registration failed");
       }
 
-      // ✅ Show success message instead of redirecting
-      setShowSuccessMessage(true);
+      // Step 2: Create Stripe checkout session
+      const stripeResponse = await axiosInstance.post(
+        "/api/stripe/create-checkout-session",
+        {
+          userType: "user",
+          email: userRes.data.data.email, // or userRes.data.email based on your structure
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // Optional: Clear form and CAPTCHA
+      const stripeSessionId = stripeResponse.data.sessionId;
+
+      // Step 3: Redirect to Stripe Checkout
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: stripeSessionId,
+      });
+
+      if (error) {
+        alert("Stripe Error: " + error.message);
+      }
+
+      // If you reach here, the redirect was successful
+      // Clear form and CAPTCHA since the user will be redirected
       reset();
       setPreview(null);
       setCaptcha(generateCaptcha());
@@ -178,7 +204,6 @@ const UserRegister = () => {
       setIsLoading(false);
     }
   };
-
   // Validation messages that appear/disappear in real-time
   const renderValidationMessage = (fieldName) => {
     const value = watch(fieldName);
@@ -928,7 +953,7 @@ const UserRegister = () => {
                     Creating Account...
                   </>
                 ) : (
-                  <span className="drop-shadow-sm">Register Now</span>
+                  <span className="drop-shadow-sm">Complete Registration</span>
                 )}
               </motion.button>
             </form>

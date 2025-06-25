@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, set } from "react-hook-form";
 import { motion } from "framer-motion";
 import {
   Eye,
@@ -25,7 +25,7 @@ import { Controller } from "react-hook-form";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
 import { Link, useNavigate } from "react-router-dom";
-
+import { loadStripe } from "@stripe/stripe-js";
 export function EventManagerRegister() {
   const methods = useForm({
     mode: "onChange",
@@ -46,6 +46,7 @@ export function EventManagerRegister() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -192,6 +193,7 @@ export function EventManagerRegister() {
         });
       }
 
+      // First register the user
       const response = await axiosInstance.post(
         endpoints.eventManagerRegister,
         formData,
@@ -205,9 +207,38 @@ export function EventManagerRegister() {
       if (response.data.status !== 201) {
         throw new Error(response.data.message || "Registration failed");
       }
-      setShowSuccessMessage(true);
-      methods.reset();
-      setPreview(null);
+      // Step 2: Create Stripe checkout session
+      const stripeResponse = await axiosInstance.post(
+        "/api/stripe/create-checkout-session",
+        {
+          userType: "eventManager",
+          email: response.data.data.email,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Stripe session response:", stripeResponse.data);
+      const stripeSessionId = stripeResponse.data.sessionId;
+      if (!stripeSessionId) {
+        alert("Stripe session ID not received from backend.");
+        return;
+      }
+
+      // Step 3: Redirect to Stripe Checkout
+      const stripe = await stripePromise;
+
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: stripeSessionId,
+      });
+
+      if (error) {
+        setLoading(false);
+        alert("Stripe Error: " + error.message);
+      }
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
 
@@ -224,13 +255,7 @@ export function EventManagerRegister() {
       } else if (error.message) {
         errorMessage = error.message;
       }
-
-      toast.error(errorMessage, {
-        autoClose: false,
-        dangerouslyHTMLString: true,
-      });
-    } finally {
-      setLoading(false);
+      alert(errorMessage);
     }
   };
 
@@ -1180,6 +1205,7 @@ export function EventManagerRegister() {
                 )}
 
                 {/* Navigation Buttons */}
+                {/* Navigation Buttons */}
                 <motion.div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 border-t border-[#333333]">
                   {step > 0 ? (
                     <motion.button
@@ -1188,6 +1214,7 @@ export function EventManagerRegister() {
                       type="button"
                       onClick={onBack}
                       className="px-8 py-3 bg-[#252525] hover:bg-[#333333] text-white rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 w-full sm:w-auto"
+                      disabled={loading}
                     >
                       <ArrowLeft size={18} /> Back
                     </motion.button>
@@ -1201,6 +1228,7 @@ export function EventManagerRegister() {
                       type="button"
                       onClick={onNext}
                       className="px-8 py-3 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] hover:from-[#FF5E5B] hover:to-[#D4AF37] text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all duration-200 w-full sm:w-auto"
+                      disabled={loading}
                     >
                       Continue <ArrowRight size={18} />
                     </motion.button>
@@ -1209,9 +1237,38 @@ export function EventManagerRegister() {
                       whileHover={{ scale: 1.0 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      className="px-8 py-3 bg-gradient-to-r from-[#FF5E5B] to-[#FF8E8C] hover:from-[#E85652] hover:to-[#FF7E7B] text-white font-medium rounded-xl flex items-center justify-center transition-all duration-200 w-full sm:w-auto ml-auto"
+                      disabled={loading}
+                      className={`px-8 py-3 bg-gradient-to-r from-[#FF5E5B] to-[#FF8E8C] hover:from-[#E85652] hover:to-[#FF7E7B] text-white font-medium rounded-xl flex items-center justify-center transition-all duration-200 w-full sm:w-auto ml-auto ${
+                        loading ? "opacity-90 cursor-not-allowed" : ""
+                      }`}
                     >
-                      Complete Registration
+                      {loading ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Processing...
+                        </>
+                      ) : (
+                        "Complete Registration"
+                      )}
                     </motion.button>
                   )}
                 </motion.div>
