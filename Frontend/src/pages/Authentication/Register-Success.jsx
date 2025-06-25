@@ -208,18 +208,17 @@ const RegisterSuccess = () => {
                 <p className="text-lg sm:text-xl text-gray-300 mb-4 sm:mb-6">
                   Your registration is complete and payment has been confirmed.
                 </p>
-                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-900/30 border border-green-500/50 rounded-lg">
-                  <p className="text-base sm:text-lg text-green-400 flex items-center justify-center sm:justify-start">
-                    <CheckCircle className="mr-2 flex-shrink-0" size={20} />
+                <div className="mb-4 p-8 bg-[#1e1e1e] rounded-lg">
+                  <p className="text-sm md:text-md text-[#a0a0a0] flex items-center justify-center">
                     We've sent a verification link to your email. Please verify
-                    your account before logging in.
+                    your account before login.
                   </p>
                 </div>
                 <div className="space-y-4">
                   <div className="flex justify-center gap-4 mt-6 sm:mt-8">
                     <button
                       onClick={() => navigate("/login")}
-                      className="px-5 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all text-sm sm:text-base"
+                      className="px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all text-sm"
                     >
                       Go to Login Now
                     </button>
@@ -231,7 +230,7 @@ const RegisterSuccess = () => {
 
           {/* Footer note */}
           <motion.p
-            className="mt-6 sm:mt-8 text-gray-500 text-xs sm:text-sm"
+            className="mt-6 sm:mt-8 text-gray-500 text-xs"
             variants={itemVariants}
           >
             Need help? Contact us at support@utsavaura.com
