@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     emailVerifyToken: { type: String },
     emailVerifyTokenCreatedAt: { type: Date },
+    isPaid: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true, versionKey: false });
 
