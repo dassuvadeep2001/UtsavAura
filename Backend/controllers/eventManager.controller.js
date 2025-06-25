@@ -1,17 +1,24 @@
-const eventManagerValidator = require('../validators/eventManager.validator');
-const {
-  userValidator
-} = require("../validators/user.validator");
-const Mailer = require('../helper/mailer');
-const eventManagerRepository = require('../repository/eventManager.repository');
-const mongoose = require('mongoose');
+const eventManagerValidator = require("../validators/eventManager.validator");
+const { userValidator } = require("../validators/user.validator");
+const Mailer = require("../helper/mailer");
+const eventManagerRepository = require("../repository/eventManager.repository");
+const mongoose = require("mongoose");
 const crypto = require("crypto");
 
 class EventManagerController {
   async createEventManager(req, res) {
     try {
-      const userFields = (({ name, email, phone, address, password }) => ({ name, email, phone, address, password }))(req.body);
-      const { error: userError, value: userValue } = userValidator.validate(userFields, { abortEarly: false });
+      const userFields = (({ name, email, phone, address, password }) => ({
+        name,
+        email,
+        phone,
+        address,
+        password,
+      }))(req.body);
+      const { error: userError, value: userValue } = userValidator.validate(
+        userFields,
+        { abortEarly: false }
+      );
 
       if (userError) {
         return res.status(400).json({
@@ -27,7 +34,7 @@ class EventManagerController {
       if (isEmailExist.length > 0) {
         return res.json({
           status: 400,
-          message: "Email already exists"
+          message: "Email already exists",
         });
       }
 
@@ -36,7 +43,7 @@ class EventManagerController {
         profileImage = req.files.profileImage[0].filename;
       }
 
-      let tempUser = new (require('../models/user.model'))();
+      let tempUser = new (require("../models/user.model"))();
       let hashedPassword = await tempUser.generateHash(password);
 
       let userData = {
@@ -47,12 +54,30 @@ class EventManagerController {
         profileImage,
         password: hashedPassword,
         role: "eventManager",
+        isPaid: true,
       };
 
       let newEventManager = await eventManagerRepository.createUser(userData);
 
-      const eventManagerFields = (({ gender, age, categoryId, service, description, previousWorkImages }) => ({ gender, age, categoryId, service, description, previousWorkImages }))(req.body);
-      const { error: emError, value: emValue } = eventManagerValidator.validate(eventManagerFields, { abortEarly: false });
+      const eventManagerFields = (({
+        gender,
+        age,
+        categoryId,
+        service,
+        description,
+        previousWorkImages,
+      }) => ({
+        gender,
+        age,
+        categoryId,
+        service,
+        description,
+        previousWorkImages,
+      }))(req.body);
+      const { error: emError, value: emValue } = eventManagerValidator.validate(
+        eventManagerFields,
+        { abortEarly: false }
+      );
 
       if (emError) {
         return res.status(400).json({
@@ -62,29 +87,32 @@ class EventManagerController {
         });
       }
 
-      let previousWorkImages = req.files?.previousWorkImages?.map(file => file.filename) || [];
+      let previousWorkImages =
+        req.files?.previousWorkImages?.map((file) => file.filename) || [];
 
       let eventManagerDetails = {
         eventManagerId: newEventManager._id,
         ...emValue,
-        previousWorkImages
+        previousWorkImages,
       };
 
-      let newManager = await eventManagerRepository.createEventManagerDetails(eventManagerDetails);
+      let newManager = await eventManagerRepository.createEventManagerDetails(
+        eventManagerDetails
+      );
 
       if (newManager) {
         const emailVerifyToken = crypto.randomBytes(32).toString("hex");
-                await eventManagerRepository.updateUserById(newEventManager._id, {
-                  emailVerifyToken,
-                  emailVerifyTokenCreatedAt: new Date(),
-                });
+        await eventManagerRepository.updateUserById(newEventManager._id, {
+          emailVerifyToken,
+          emailVerifyTokenCreatedAt: new Date(),
+        });
         const mailer = new Mailer(
           "Gmail",
           process.env.APP_EMAIL,
           process.env.APP_PASSWORD
         );
 
-         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${emailVerifyToken}`;
+        const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${emailVerifyToken}`;
         let mailObj = {
           to: email,
           subject: "Verify Your Email",
@@ -107,15 +135,19 @@ class EventManagerController {
 
       return res.status(201).json({
         status: 201,
-        message: 'Event Manager created successfully',
-        data: newManager
+        message: "Event Manager created successfully",
+        data: {
+          email: newEventManager.email,
+          name: newEventManager.name,
+          eventManagerId: newEventManager._id,
+          eventManagerDetails: newManager,
+        },
       });
-
     } catch (error) {
       return res.status(500).json({
         status: 500,
-        message: 'Internal server error',
-        error: error.message
+        message: "Internal server error",
+        error: error.message,
       });
     }
   }
@@ -124,7 +156,9 @@ class EventManagerController {
     try {
       const eventManagerId = req.user;
 
-      const existingUser = await eventManagerRepository.findUserById(eventManagerId);
+      const existingUser = await eventManagerRepository.findUserById(
+        eventManagerId
+      );
       if (!existingUser || existingUser.role !== "eventManager") {
         return res.status(404).json({
           status: 404,
@@ -133,19 +167,28 @@ class EventManagerController {
         });
       }
 
-      const userFields = (({ name, email, phone, address }) => ({ name, email, phone, address }))(req.body);
-      const { error: userError, value: userValue } = userValidator.fork(['password'], schema => schema.forbidden()).validate(userFields, { abortEarly: false });
+      const userFields = (({ name, email, phone, address }) => ({
+        name,
+        email,
+        phone,
+        address,
+      }))(req.body);
+      const { error: userError, value: userValue } = userValidator
+        .fork(["password"], (schema) => schema.forbidden())
+        .validate(userFields, { abortEarly: false });
 
       if (userError) {
         return res.status(400).json({
           status: 400,
-          message: userError.details.map(err => err.message).join(", "),
+          message: userError.details.map((err) => err.message).join(", "),
           data: {},
         });
       }
 
       if (userValue.email && userValue.email !== existingUser.email) {
-        const emailExists = await eventManagerRepository.isEmailExist(userValue.email);
+        const emailExists = await eventManagerRepository.isEmailExist(
+          userValue.email
+        );
         if (emailExists.length > 0) {
           return res.status(400).json({
             status: 400,
@@ -160,30 +203,47 @@ class EventManagerController {
 
       await eventManagerRepository.updateUserById(eventManagerId, userValue);
 
-      const eventManagerFields = (({ gender, age, categoryId, service, description }) => ({
-        gender, age, service, description, categoryId
+      const eventManagerFields = (({
+        gender,
+        age,
+        categoryId,
+        service,
+        description,
+      }) => ({
+        gender,
+        age,
+        service,
+        description,
+        categoryId,
       }))(req.body);
 
-      const { error: emError, value: emValue } = eventManagerValidator.validate(eventManagerFields, { abortEarly: false });
+      const { error: emError, value: emValue } = eventManagerValidator.validate(
+        eventManagerFields,
+        { abortEarly: false }
+      );
       if (emError) {
         return res.status(400).json({
           status: 400,
-          message: emError.details.map(err => err.message).join(", "),
+          message: emError.details.map((err) => err.message).join(", "),
           data: {},
         });
       }
 
       if (req.files?.previousWorkImages) {
-        emValue.previousWorkImages = req.files.previousWorkImages.map(file => file.filename);
+        emValue.previousWorkImages = req.files.previousWorkImages.map(
+          (file) => file.filename
+        );
       }
 
-      await eventManagerRepository.updateEventManagerDetails(eventManagerId, emValue);
+      await eventManagerRepository.updateEventManagerDetails(
+        eventManagerId,
+        emValue
+      );
 
       return res.status(200).json({
         status: 200,
         message: "Event Manager profile updated successfully",
       });
-
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -200,7 +260,7 @@ class EventManagerController {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
           status: 400,
-          message: 'Invalid Event Manager ID'
+          message: "Invalid Event Manager ID",
         });
       }
 
@@ -209,14 +269,13 @@ class EventManagerController {
       return res.status(200).json({
         status: 200,
         message: "Event Manager details fetched successfully",
-        data: result
+        data: result,
       });
-
     } catch (error) {
       return res.status(500).json({
         status: 500,
         message: "Internal server error",
-        error: error.message
+        error: error.message,
       });
     }
   }

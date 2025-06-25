@@ -78,6 +78,7 @@ class UserController {
         profileImage,
         password: hashedPassword,
         role: "user",
+        isPaid: true,
       });
 
       if (user) {
