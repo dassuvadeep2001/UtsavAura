@@ -71,7 +71,7 @@ const User = () => {
         <div className="w-60 flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
           <Sparkles className="text-[#D4AF37] mr-2" size={18} />
           <span className="text-[#D4AF37] text-sm font-medium">
-            UtsavAura Admin Team
+            Admin User Management
           </span>
         </div>
       </motion.div>

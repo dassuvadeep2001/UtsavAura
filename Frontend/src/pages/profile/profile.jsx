@@ -100,24 +100,37 @@ const Profile = () => {
       ))}
 
       {/* 🔥 Banner with Motion Effects */}
-      <div className="w-full h-80 relative overflow-hidden flex flex-col items-center justify-center text-center px-4">
+      <div className="w-full h-80 relative overflow-hidden flex flex-col items-center justify-center text-center px-4 bg-[#D4AF37]/10 backdrop-blur-sm z-10">
         {/* 🖼 Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-50"
-        >
-          <source src="src/assets/videos/profile.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+ <div className="absolute inset-0 overflow-hidden z-0">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-[#D4AF37]/20"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 300 + 100}px`,
+                height: `${Math.random() * 300 + 100}px`,
+              }}
+              animate={{
+                opacity: [0.1, 0.3, 0.1],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 10 + Math.random() * 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
         {/* ✨ Motion Tagline */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 mb-2"
+          className="relative z-10 mb-8"
         >
           <div className="flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
             <Sparkles className="text-[#D4AF37] mr-2" size={18} />
@@ -131,7 +144,7 @@ const Profile = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative z-10 text-2xl md:text-4xl font-bold text-white leading-tight"
+          className="relative z-10 text-2xl md:text-4xl font-bold text-white leading-tight mb-14"
         >
           Welcome{" "}
           <span className="bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] bg-clip-text text-transparent">
@@ -142,7 +155,7 @@ const Profile = () => {
       </div>
 
       {/* 👤 Profile Section */}
-      <div className="relative w-full mx-auto px-6">
+      <div className="relative w-full mx-auto px-6 mb-8">
         {/* 📸 Centered Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

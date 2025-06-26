@@ -247,7 +247,7 @@ return (
       <div className="inline-flex items-center justify-center gap-2 bg-[#D4AF37]/10 backdrop-blur-lg px-4 py-2 rounded-full border border-[#D4AF37]/30 shadow-[0_0_15px_rgba(212,175,55,0.2)] transition-all hover:bg-[#D4AF37]/15 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
         <Sparkles className="text-[#D4AF37] w-5 h-5" />
         <span className="text-[#D4AF37] text-sm font-medium tracking-wide">
-          UtsavAura Team
+          Profile Management
         </span>
       </div>
     </motion.div>
@@ -257,7 +257,7 @@ return (
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className="max-w-[700px] mx-auto mb-10 text-center text-3xl md:text-4xl font-bold text-white"
+      className="max-w-[700px] mx-auto mb-14 text-center text-3xl md:text-4xl font-bold text-white"
     >
       <span className="bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] bg-clip-text text-transparent">
         {profileData.name} !!
