@@ -24,6 +24,7 @@ import {
 import { Controller } from "react-hook-form";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
+import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 export function EventManagerRegister() {
@@ -62,11 +63,19 @@ export function EventManagerRegister() {
     "Professional Details",
     "Declaration",
   ];
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
+      // ✅ Validate MIME type to allow only images
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files are allowed. Please select a valid image!");
+        e.target.value = ""; // Clear the input
+        return;
+      }
+
       setValue("profileImage", file, { shouldValidate: true });
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target.result);
@@ -342,6 +351,19 @@ export function EventManagerRegister() {
 
   return (
     <div className="min-h-screen flex bg-[#0D0D0D] text-white">
+        <ToastContainer
+              position="top-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+              className={"z-50 h-30"}
+            />
       {/* Left Sidebar - 30% width */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
@@ -1018,11 +1040,7 @@ export function EventManagerRegister() {
                             },
                             fileType: (files) => {
                               if (!files) return true;
-                              const validTypes = [
-                                "image/jpeg",
-                                "image/png",
-                                "image/gif",
-                              ];
+                              const validTypes = ["image/jpeg", "image/png"];
                               return (
                                 Array.from(files).every((file) =>
                                   validTypes.includes(file.type)
@@ -1114,10 +1132,27 @@ export function EventManagerRegister() {
                                   multiple
                                   accept="image/*"
                                   onChange={(e) => {
-                                    const files = Array.from(
+                                    const allFiles = Array.from(
                                       e.target.files || []
                                     );
-                                    onChange(files.length > 0 ? files : null);
+                                    const validTypes = [
+                                      "image/jpeg",
+                                      "image/png",
+                                      "image/gif",
+                                    ];
+                                    const validFiles = allFiles.filter((file) =>
+                                      validTypes.includes(file.type)
+                                    );
+
+                                    if (validFiles.length < allFiles.length) {
+                                      toast.error(
+                                        "Only JPEG, PNG, and GIF images are allowed."
+                                      );
+                                    }
+
+                                    onChange(
+                                      validFiles.length > 0 ? validFiles : null
+                                    );
                                   }}
                                   className="hidden"
                                 />
