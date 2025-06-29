@@ -20,7 +20,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
 import { Link, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
-
+import { ToastContainer, toast } from "react-toastify";
 // Utility: Generate CAPTCHA
 const generateCaptcha = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
@@ -101,8 +101,17 @@ const UserRegister = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
+      // Check if the file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files are allowed. Please select a valid image!");
+        e.target.value = ""; // Clear the invalid file
+        return;
+      }
+
       setValue("profileImage", file);
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target.result);
@@ -110,6 +119,7 @@ const UserRegister = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const onSubmit = async (data) => {
     if (data.captchaInput !== captcha) {
       alert("Invalid CAPTCHA. Please try again.");
@@ -299,6 +309,19 @@ const UserRegister = () => {
 
   return (
     <div className="min-h-screen flex bg-[#0D0D0D]">
+       <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="dark"
+                    className={"z-50 h-30"}
+                  />
       {/* Left Side - Fixed Features (30%) */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
