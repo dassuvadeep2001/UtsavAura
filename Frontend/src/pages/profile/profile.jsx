@@ -3,23 +3,27 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import { endpoints, imageBaseUrl } from '../../api/api_url';
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Sparkles, Settings, Calendar, VenusAndMars, Pencil, Zap, CheckCircle, Clock } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { 
+  Mail, MapPin, Phone, Sparkles, Settings, Calendar, 
+  VenusAndMars, Pencil, Zap, CheckCircle, Clock,
+  Users, MessageSquare, Layers, BarChart2, Shield, LogOut
+} from "lucide-react";
+import { Link, useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [user, setUser] = useState({
     name: "", email: "", phone: "", address: "", profileImage: "", role: "",
     description: "", age: "", gender: "", service: [], previousWorkImages: [],
-    reviews: []
+    reviews: [], stats: {}
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axiosInstance
       .get(endpoints.profile)
       .then((res) => {
         setUser(res.data.data);
-        console.log('User profile fetched successfully:', res.data.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -28,8 +32,8 @@ const Profile = () => {
       });
   }, []);
 
-  if (loading) return <div>Loading profile...</div>;
-  if (!user) return <div>Unable to load profile. Please try again later.</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D] text-white">Loading profile...</div>;
+  if (!user) return <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D] text-white">Unable to load profile. Please try again later.</div>;
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -54,12 +58,16 @@ const Profile = () => {
     },
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white relative overflow-hidden">
-      {/* 🔮 Glassmorphic Background Blur */}
+      {/* Background Elements */}
       <div className="absolute inset-0 backdrop-blur-xl bg-black/30 z-0"></div>
-
-      {/* 🌈 Role-Based Gradient Overlay */}
+      
       {user.role === "admin" && (
         <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 via-transparent to-[#FF5E5B]/10 z-0"></div>
       )}
@@ -70,7 +78,7 @@ const Profile = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 via-transparent to-[#FF5E5B]/10 z-0"></div>
       )}
 
-      {/* ✨ Floating Glowing Particles */}
+      {/* Floating Particles */}
       {[...Array(25)].map((_, i) => (
         <motion.div
           key={i}
@@ -99,10 +107,9 @@ const Profile = () => {
         />
       ))}
 
-      {/* 🔥 Banner with Motion Effects */}
+      {/* Banner Section */}
       <div className="w-full h-80 relative overflow-hidden flex flex-col items-center justify-center text-center px-4 bg-[#D4AF37]/10 backdrop-blur-sm z-10">
-        {/* 🖼 Video Background */}
- <div className="absolute inset-0 overflow-hidden z-0">
+        <div className="absolute inset-0 overflow-hidden z-0">
           {Array.from({ length: 8 }).map((_, i) => (
             <motion.div
               key={i}
@@ -125,7 +132,7 @@ const Profile = () => {
             />
           ))}
         </div>
-        {/* ✨ Motion Tagline */}
+        
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,11 +142,11 @@ const Profile = () => {
           <div className="flex items-center justify-center bg-[#D4AF37]/10 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D4AF37]/30">
             <Sparkles className="text-[#D4AF37] mr-2" size={18} />
             <span className="text-[#D4AF37] text-sm font-medium">
-              UtsavAura Team
+              {user.role === 'admin' ? 'Administrator' : user.role === 'eventManager' ? 'Event Manager' : 'Valued Member'}
             </span>
           </div>
         </motion.div>
-        {/* 💬 Motion Heading */}
+        
         <motion.h3
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,9 +161,9 @@ const Profile = () => {
         </motion.h3>
       </div>
 
-      {/* 👤 Profile Section */}
+      {/* Profile Content */}
       <div className="relative w-full mx-auto px-6 mb-8">
-        {/* 📸 Centered Profile Image */}
+        {/* Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -164,127 +171,125 @@ const Profile = () => {
           className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20"
         >
           <div className="relative w-45 h-45">
-            {/* Glowing ring behind */}
             <div className="absolute inset-0 rounded-full bg-[#D4AF37] blur-xl opacity-50 animate-pulse-glow z-0"></div>
-            {/* Profile Image */}
             <img
               src={`${imageBaseUrl}${user.profileImage}`}
               alt="Profile"
               className="w-45 h-45 rounded-full shadow-xl object-cover relative z-10"
-                onError={(e) => {
-    e.target.src = '/src/assets/images/user.png';
-    e.onerror = null; 
-  }}
+              onError={(e) => {
+                e.target.src = '/src/assets/images/user.png';
+                e.onerror = null; 
+              }}
             />
           </div>
         </motion.div>
 
-        <div className="pt-32 text-center">
-          {/* 🎯 Role-specific Sections */}
+        <div className="pt-32">
+          {/* ADMIN VIEW */}
           {user.role === "admin" && (
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="mt-5 mb-5 mx-auto max-w-5xl p-6 rounded-xl bg-white/5 backdrop-blur-md shadow-lg border-t-4"
-              style={{ borderTopColor: "#D4AF37" }}
-            >
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Contact Info */}
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Admin Sidebar */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="lg:col-span-1 bg-[#121212]/80 backdrop-blur-md rounded-xl p-6 border border-[#D4AF37]/20 shadow-lg"
+              >
+                <h2 className="text-xl font-bold text-[#D4AF37] mb-6 flex items-center gap-2">
+                  <Shield className="w-5 h-5" /> Admin Dashboard
+                </h2>
+                
+                <nav className="space-y-2">
+                  <Link 
+                    to="/admin/dashboard" 
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#D4AF37]/10 text-white hover:bg-[#D4AF37]/20 transition-colors"
+                  >
+                    <BarChart2 className="w-5 h-5" /> Overview
+                  </Link>
+                  <Link 
+                    to="/admin/users" 
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                  >
+                    <Users className="w-5 h-5" /> Users
+                  </Link>
+                  <Link 
+                    to="/admin/queries" 
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                  >
+                    <MessageSquare className="w-5 h-5" /> Queries
+                  </Link>
+                  <Link 
+                    to="/admin/categories" 
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                  >
+                    <Layers className="w-5 h-5" /> Categories
+                  </Link>
+                </nav>
+              </motion.div>
+              
+              {/* Admin Main Content */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="lg:col-span-3 space-y-6"
+              >
+                
+                {/* Profile Info */}
                 <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="md:w-1/2"
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="visible"
+                  className="bg-white/5 backdrop-blur-md rounded-xl shadow-lg border-t-4 border-[#D4AF37] px-6 py-10"
                 >
-                  <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">Contact Info</h2>
-                  <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
-                  {user.isVerified ? (
-  <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
-    <CheckCircle className="w-4 h-4 mr-2" /> Verified
-  </p>
-) : (
-  <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
-    <Clock className="w-4 h-4 mr-2" /> Not Verified
-  </p>
-)}
-                  <p className="text-[#B0B0B0] mb-3 flex items-start text-lg">
-                    <Mail size={22} className="text-[#D4AF37] mr-2" /> {user.email}
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="md:w-1/2">
+                      <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">Admin Profile</h2>
+                      <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
+                      {user.isVerified ? (
+                        <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
+                          <CheckCircle className="w-4 h-4 mr-2" /> Verified
+                        </p>
+                      ) : (
+                        <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
+                          <Clock className="w-4 h-4 mr-2" /> Not Verified
+                        </p>
+                      )}
+                      <p className="text-[#B0B0B0] mb-3 flex items-start text-lg">
+                        <Mail size={22} className="text-[#D4AF37] mr-2" /> {user.email}
+                      </p>
+                      <p className="text-[#B0B0B0] mb-3 flex items-start text-lg">
+                        <Phone size={22} className="text-[#D4AF37] mr-2" /> {user.phone}
+                      </p>
+                      <p className="text-[#B0B0B0] mb-5 flex items-start text-lg">
+                        <MapPin size={22} className="text-[#D4AF37] mr-2" /> {user.address}
+                      </p>
+                    </div>
+                    
+                    <div className="hidden md:block w-px bg-[#444444] opacity-30"></div>
+                    <div className="block md:hidden h-px w-full bg-[#444444] opacity-30 my-4"></div>
+                    
+                    <div className="md:w-1/2">
+                      <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">Manage Account</h2>
+                      <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
+                                       <p className="text-[#B0B0B0] mb-4">
+                    Review and update your personal information, password, and preferences.
                   </p>
-                  <p className="text-[#B0B0B0] mb-3 flex items-start text-lg">
-                    <Phone size={22} className="text-[#D4AF37] mr-2" /> {user.phone}
-                  </p>
-                  <p className="text-[#B0B0B0] mb-5 flex items-start text-lg">
-                    <MapPin size={22} className="text-[#D4AF37] mr-2" /> {user.address}
-                  </p>
-                  <div className="mt-6">
-                    <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">Manage Account</h2>
-                    <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
-                    <p className="text-[#B0B0B0] mb-4">
-                      Review and update your personal information, password, and preferences.
-                    </p>
-                    <Link
-                      to="/manageAccount"
-                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow-md hover:from-[#FF5E5B] hover:to-[#D4AF37] transition-transform duration-300"
-                    >
-                      <Settings size={20} />
-                      Manage Account
-                    </Link>
+                  <Link
+                    to="/manageAccount"
+                    className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow-md hover:from-[#FF5E5B] hover:to-[#D4AF37] transition-transform duration-300"
+                  >
+                    <Settings size={20} />
+                    Manage Account
+                  </Link>
+                    </div>
                   </div>
                 </motion.div>
-                <div className="hidden md:block w-px bg-[#444444] opacity-30"></div>
-                <div className="block md:hidden h-px w-full bg-[#444444] opacity-30 my-4"></div>
-                {/* Admin Panel */}
-                <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="md:w-1/2 space-y-6"
-                >
-                  <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4">Admin Panel</h2>
-                  <div className="w-full h-px bg-[#444444] opacity-30 mb-5"></div>
-                  <div>
-                    <h3 className="text-lg font-light text-[#ff716f] mb-1">User Queries</h3>
-                    <p className="text-[#B0B0B0] text-sm mb-2">
-                      Review and respond to questions or support requests submitted by users.
-                    </p>
-                    <a
-                      href="/admin/queries"
-                      className="w-full inline-block text-center px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow hover:from-[#FF5E5B] hover:to-[#D4AF37] transition duration-300"
-                    >
-                      View Queries
-                    </a>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-light text-[#ff716f] mb-1">Registered Users</h3>
-                    <p className="text-[#B0B0B0] text-sm mb-2">
-                      View statistics and manage the list of all registered users.
-                    </p>
-                    <a
-                      href="/admin/users"
-                      className="w-full inline-block text-center px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow hover:from-[#FF5E5B] hover:to-[#D4AF37] transition duration-300"
-                    >
-                      See Users
-                    </a>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-light text-[#ff716f] mb-1">Manage Categories</h3>
-                    <p className="text-[#B0B0B0] text-sm mb-2">
-                      Add new categories or edit existing ones to organize your platform better.
-                    </p>
-                    <a
-                      href="/admin/categories"
-                      className="w-full inline-block text-center px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow hover:from-[#FF5E5B] hover:to-[#D4AF37] transition duration-300"
-                    >
-                      Manage Categories
-                    </a>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           )}
 
+          {/* USER VIEW */}
           {user.role === "user" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -297,15 +302,15 @@ const Profile = () => {
                 <div className="md:w-1/2">
                   <h2 className="text-2xl font-semibold text-[#D4AF37] mb-4 text-start">Contact Info</h2>
                   <div className='h-px w-full bg-[#444444] opacity-30 mb-5'></div>
-                   {user.isVerified ? (
-  <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
-    <CheckCircle className="w-4 h-4 mr-2" /> Verified
-  </p>
-) : (
-  <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
-    <Clock className="w-4 h-4 mr-2" /> Not Verified
-  </p>
-)}
+                  {user.isVerified ? (
+                    <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
+                      <CheckCircle className="w-4 h-4 mr-2" /> Verified
+                    </p>
+                  ) : (
+                    <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
+                      <Clock className="w-4 h-4 mr-2" /> Not Verified
+                    </p>
+                  )}
                   <p className="text-[#B0B0B0] mb-2 flex items-center text-lg">
                     <Mail size={22} className="text-[#D4AF37] mr-2" />
                     {user.email}
@@ -327,18 +332,19 @@ const Profile = () => {
                   <p className="text-[#B0B0B0] mb-4">
                     Review and update your personal information, password, and preferences.
                   </p>
-                  <a
-                    href="/manageAccount"
+                  <Link
+                    to="/manageAccount"
                     className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FF5E5B] text-white font-semibold rounded-md shadow-md hover:from-[#FF5E5B] hover:to-[#D4AF37] transition-transform duration-300"
                   >
                     <Settings size={20} />
                     Manage Account
-                  </a>
+                  </Link>
                 </div>
               </div>
             </motion.div>
           )}
 
+          {/* EVENT MANAGER VIEW */}
           {user.role === "eventManager" && (
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -361,15 +367,15 @@ const Profile = () => {
                   >
                     <h3 className="text-2xl font-semibold text-[#D4AF37] mb-4">Profile Overview</h3>
                     <div className="w-full h-px bg-[#444444] opacity-30 mb-4"></div>
-                     {user.isVerified ? (
-  <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
-    <CheckCircle className="w-4 h-4 mr-2" /> Verified
-  </p>
-) : (
-  <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
-    <Clock className="w-4 h-4 mr-2" /> Not Verified
-  </p>
-)}
+                    {user.isVerified ? (
+                      <p className="flex items-center text-green-400 mb-4 text-sm border border-green-400 rounded-full w-fit px-3 py-1 font-medium">
+                        <CheckCircle className="w-4 h-4 mr-2" /> Verified
+                      </p>
+                    ) : (
+                      <p className="flex items-center text-[#B0B0B0] mb-4 text-sm border border-[#B0B0B0] rounded-full w-fit px-3 py-1 font-medium">
+                        <Clock className="w-4 h-4 mr-2" /> Not Verified
+                      </p>
+                    )}
                     <p className="text-[#B0B0B0] mb-4 whitespace-pre-wrap text-start">{user.description}</p>
                     <div className="space-y-3 text-[#B0B0B0] text-base sm:text-lg">
                       <p className="flex items-center space-x-2">
@@ -429,7 +435,7 @@ const Profile = () => {
                     <div className="mb-6">
                       <h4 className="text-[#ff6d6aeb] font-light mb-5 text-xl">Events Offered</h4>
                       <ul className="grid grid-cols-4 gap-x-2 gap-y-2 text-[#d1d1d1] text-lg list-inside">
-                        {user.category.map((cat, idx) => (
+                        {user.category?.map((cat, idx) => (
                           <li key={idx}>{cat.category}</li>
                         ))}
                       </ul>
@@ -437,7 +443,7 @@ const Profile = () => {
                     <div>
                       <h4 className="text-[#ff6d6aeb] font-light mb-4 text-xl">Previous Work</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-3">
-                        {user.previousWorkImages.map((img, index) => (
+                        {user.previousWorkImages?.map((img, index) => (
                           <motion.img
                             key={index}
                             src={`${imageBaseUrl}${img}`}
@@ -463,10 +469,10 @@ const Profile = () => {
                 <h3 className="text-2xl font-semibold text-[#D4AF37] mb-4">Customer Reviews</h3>
                 <div className="w-full h-px bg-[#545454] opacity-40 mb-8"></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {user.reviews.length > 0 ? (
+                  {user.reviews?.length > 0 ? (
                     user.reviews.map((review) => {
                       const initials = review.reviewerName
-                        .split(" ")
+                        ?.split(" ")
                         .map((n) => n[0])
                         .join("")
                         .toUpperCase()
@@ -478,11 +484,11 @@ const Profile = () => {
                         >
                           <div className="flex items-start gap-2 md:gap-4 mb-4">
                             <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FF5E5B] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                              {initials}
+                              {initials || "GU"}
                             </div>
                             <div className="space-y-1 text-start">
-                              <p className="text-[#FF5E5B] font-semibold">{review.reviewerName}</p>
-                              <p className="text-xs text-[#888]">{review.reviewerEmail}</p>
+                              <p className="text-[#FF5E5B] font-semibold">{review.reviewerName || "Guest User"}</p>
+                              <p className="text-xs text-[#888]">{review.reviewerEmail || "guest@example.com"}</p>
                             </div>
                           </div>
                           <div className="flex justify-center mb-2">
