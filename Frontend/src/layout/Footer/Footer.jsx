@@ -11,13 +11,13 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] border-t border-[#D4AF37]/30 py-16 px-6 font-[Poppins] relative overflow-hidden">
+    <footer className="bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] border-t border-[#D4AF37]/30 px-6 py-8 font-[Poppins] relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-20"></div>
       <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-[#D4AF37]/5 blur-3xl"></div>
       <div className="absolute -top-20 -left-20 w-48 h-48 rounded-full bg-[#D4AF37]/5 blur-3xl"></div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10 mt-8">
         {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-[#E0E0E0]">
           {/* Brand & Description */}
@@ -166,7 +166,7 @@ const Footer = () => {
         </div>
 
         {/* Horizontal divider and copyright */}
-        <div className="border-t border-[#333333] mt-12 pt-8 text-center">
+        <div className="border-t border-[#333333] mt-16 pt-8 text-center">
           <p className="text-[#B0B0B0]/70 text-xs">
             © 2025 UtsavAura. All rights reserved.
           </p>

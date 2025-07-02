@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Authentication/Login";
 import UserRegister from "./pages/Authentication/UserRegister";
 import ChooseUserPage from "./pages/Authentication/ChooseUser";
@@ -54,15 +54,36 @@ function App() {
             path="/event-manager-details/:id"
             element={<EventManagerDetails />}
           />
-   <Route path="/register-success" element={<RegisterSuccess/>} />
+          <Route path="/register-success" element={<RegisterSuccess/>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/updateProfile" element={<UpdateProfile />} />
           <Route path="/manageAccount" element={<ManageAccount />} />
-          <Route path="/admin/users" element={<User />} />
-          <Route path="/admin/queries" element={<Queries />} />
-          <Route path="/admin/categories" element={<Category />} />
+<Route 
+  path="/admin/users" 
+  element={
+    localStorage.getItem('role') === 'admin' ? 
+      <User /> : 
+      <Navigate to="/unauthorized" replace />
+  } 
+/>
+<Route 
+  path="/admin/queries" 
+  element={
+    localStorage.getItem('role') === 'admin' ? 
+      <Queries /> : 
+      <Navigate to="/unauthorized" replace />
+  } 
+/>
+<Route 
+  path="/admin/categories" 
+  element={
+    localStorage.getItem('role') === 'admin' ? 
+      <Category /> : 
+      <Navigate to="/unauthorized" replace />
+  } 
+/>
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

@@ -69,6 +69,7 @@ const Login = () => {
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
       localStorage.setItem("user", JSON.stringify(user));
       window.dispatchEvent(new Event("authChange"));
 

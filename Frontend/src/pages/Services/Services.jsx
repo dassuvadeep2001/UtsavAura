@@ -13,6 +13,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { jsx } from "react/jsx-runtime";
 
 // Animation Variants
 const fadeIn = {
@@ -90,6 +91,9 @@ const Services = () => {
       console.log("Event Managers Data:", eventManagers);
     }
   }, [eventManagers, loading, error]);
+  // Get logged-in event manager's ID from localStorage
+const loggedInEventManagerId = JSON.parse(localStorage.getItem("user"))._doc._id;
+console.log("Logged-in Event Manager ID:", loggedInEventManagerId);
 
   // Set category content based on ID
   useEffect(() => {
@@ -685,7 +689,9 @@ content.accentColor = "#FF5E5B";
             )}
             {!loading &&
               !error &&
-              eventManagers.map((manager) => (
+              eventManagers
+              .filter(manager => manager.eventManagerId !== loggedInEventManagerId)
+              .map((manager) => (
                 <motion.div
                   key={manager.eventManagerId}
                   variants={fadeIn}

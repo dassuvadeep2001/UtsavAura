@@ -30,7 +30,7 @@ class UserRepository {
     }
 
     async getPublicProfileById(id) {
-        return await userModel.findById(id).select("-password -createdAt -updatedAt -__v -isDeleted -_id -otp");
+        return await userModel.findById(id).select("-password -createdAt -updatedAt -__v -isDeleted -otp");
     }
 
     async hashPassword(password) {

@@ -418,7 +418,7 @@ class UserController {
           },
           {
             $project: {
-              _id: 0,
+              _id: 1,
               name: "$userDetails.name",
               email: "$userDetails.email",
               phone: "$userDetails.phone",
