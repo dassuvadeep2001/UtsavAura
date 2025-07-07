@@ -63,7 +63,7 @@ function App() {
 <Route 
   path="/admin/users" 
   element={
-    localStorage.getItem('role') === 'admin' ? 
+    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
       <User /> : 
       <Navigate to="/unauthorized" replace />
   } 
@@ -71,7 +71,7 @@ function App() {
 <Route 
   path="/admin/queries" 
   element={
-    localStorage.getItem('role') === 'admin' ? 
+    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
       <Queries /> : 
       <Navigate to="/unauthorized" replace />
   } 
@@ -79,7 +79,7 @@ function App() {
 <Route 
   path="/admin/categories" 
   element={
-    localStorage.getItem('role') === 'admin' ? 
+    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
       <Category /> : 
       <Navigate to="/unauthorized" replace />
   } 

@@ -362,25 +362,29 @@ const UpdateProfile = () => {
             <div className="flex flex-col sm:flex-row gap-4 w-full">
               <div className="flex-1">
                 <InputField
-                  label="Phone"
-                  register={register("phone", {
-                    required: "This field is required",
-                    validate: {
-                      validLength: (value) => {
-                        const digits = value.replace(/\D/g, "");
-                        return (
-                          digits.length === 10 || "Must be exactly 10 digits"
-                        );
-                      },
-                      validNumber: (value) => {
-                        const digits = value.replace(/\D/g, "");
-                        return (
-                          /^\d+$/.test(digits) || "Must contain only numbers"
-                        );
-                      },
-                    },
-                  })}
-                />
+  label="Phone"
+  type="tel"
+  maxLength={10}
+  register={register("phone", {
+    required: "This field is required",
+    validate: {
+      validLength: (value) => value.length === 10 || "Must be exactly 10 digits",
+    },
+  })}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "");
+    setValue("phone", value, { shouldValidate: true });
+  }}
+  onKeyDown={(e) => {
+    // Allow: digits, Backspace, Delete, Tab, Escape, Enter, Arrow keys
+    if (
+      !/[0-9]/.test(e.key) &&
+      !["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)
+    ) {
+      e.preventDefault();
+    }
+  }}
+/>
                 {renderValidationMessage("phone")}
               </div>
               <div className="flex-1">
@@ -666,7 +670,7 @@ const UpdateProfile = () => {
 
 // Helper Components
 // InputField.jsx
-const InputField = ({ label, type = "text", register, error }) => (
+const InputField = ({ label, type, register, error, onChange, onKeyDown, ...rest }) => (
   <div className="mb-4">
     <label className="block text-[#B0B0B0] text-sm font-medium mb-2">
       {label}
@@ -674,6 +678,9 @@ const InputField = ({ label, type = "text", register, error }) => (
     <input
       type={type}
       {...register}
+      onChange={onChange}
+      onKeyDown={onKeyDown}
+      {...rest}
       className={`w-full px-4 py-3 rounded-xl bg-[#0D0D0D] border ${
         error ? "border-[#FF5E5B]" : "border-[#1F1F1F]"
       } text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37]/30 transition-all duration-200 placeholder:text-[#4A4A4A]`}
