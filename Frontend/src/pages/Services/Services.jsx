@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Sparkles,
@@ -65,6 +65,13 @@ const Services = () => {
       vision: "",
     },
   });
+  const navigate = useNavigate();
+  // Redirect to login if no token
+ useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
 
   // Fetch event managers
   useEffect(() => {

@@ -60,30 +60,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/updateProfile" element={<UpdateProfile />} />
           <Route path="/manageAccount" element={<ManageAccount />} />
-<Route 
-  path="/admin/users" 
-  element={
-    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
-      <User /> : 
-      <Navigate to="/unauthorized" replace />
-  } 
-/>
-<Route 
-  path="/admin/queries" 
-  element={
-    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
-      <Queries /> : 
-      <Navigate to="/unauthorized" replace />
-  } 
-/>
-<Route 
-  path="/admin/categories" 
-  element={
-    localStorage.getItem('role') === 'admin' && localStorage.getItem('token') ? 
-      <Category /> : 
-      <Navigate to="/unauthorized" replace />
-  } 
-/>
+          <Route path="/admin/users" element={<User />} />
+          <Route path="/admin/queries" element={<Queries />} />
+          <Route path="/admin/categories" element={<Category />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

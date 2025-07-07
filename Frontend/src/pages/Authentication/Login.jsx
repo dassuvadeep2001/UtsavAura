@@ -76,7 +76,7 @@ const Login = () => {
       toast.success("Login Done Successfully !", {
         toastId: "storage-start",
         autoClose: 1000,
-        onClose: () => navigate("/profile"),
+        onClose: () => navigate("/"),
       });
     } catch (err) {
       console.error("Login error:", err);

@@ -5,9 +5,19 @@ import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
 import { Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Queries = () => {
   const [queries, setQueries] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if (!token || role !== "admin") {
+      navigate("*", { replace: true });
+    }
+  }, [navigate]);
 
   const fetchQueries = async () => {
     try {

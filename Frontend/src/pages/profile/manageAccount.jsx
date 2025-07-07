@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LogOut, Trash2, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios"; // Import axios for API calls
 import { toast, ToastContainer } from "react-toastify"; // For feedback
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const ManageAccount = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
+    useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // Redirect to home page if no token
+    }
+  }, [navigate]);
   // 🔐 LOGOUT FUNCTION - Clears token from localStorage
   const handleLogout = () => {
     localStorage.removeItem("token"); // Clear token

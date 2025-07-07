@@ -18,6 +18,12 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+      useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login"); // Redirect to home page if no token
+      }
+    }, [navigate]);
 
   useEffect(() => {
     axiosInstance

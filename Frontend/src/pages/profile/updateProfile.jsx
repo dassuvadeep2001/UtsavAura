@@ -32,6 +32,12 @@ const UpdateProfile = () => {
   } = useForm();
   const selectedCategories = watch("categoryId") || [];
   const selectedServices = watch("service") || [];
+      useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login"); // Redirect to home page if no token
+      }
+    }, [navigate]);
 
   useEffect(() => {
     const fetchData = async () => {

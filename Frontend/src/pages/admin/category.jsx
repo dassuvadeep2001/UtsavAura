@@ -5,11 +5,21 @@ import { toast, ToastContainer } from "react-toastify";
 import { Pencil, Trash2, Plus, Sparkles } from "lucide-react";
 import axiosInstance from "../../api/axiosInstance";
 import { endpoints } from "../../api/api_url";
+import { useNavigate } from "react-router-dom";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if (!token || role !== "admin") {
+      navigate("*", { replace: true });
+    }
+  }, [navigate]);
 
   const {
     register,
